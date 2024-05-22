@@ -1,0 +1,103 @@
+{% extends "shared/base.html" %}
+{% block content%}
+
+{% if not attendance.punch_out_time %}
+<div class="card card-frame">
+    <div class="card-header">
+        Attendance
+    </div>
+    <div class="card-body">
+        <form action="punch" method="post">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6">
+                {% if attendance %}
+                <div class="form-group">
+                  <label for="">Punched In Date</label>
+                  <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="{{attendance.punch_in_date}}" disabled>
+                </div>
+                {% else %}
+                <div class="form-group">
+                  <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="{{today}}" disabled>
+                </div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                {% if attendance %}
+                <div class="form-group">
+                  <label for="">Punch In Time</label>
+                  <input type="text" placeholder="{{attendance.punch_in_time}}" class="form-control" disabled />
+                </div>
+                {% else %}
+                <div class="form-group">
+                  <input type="text" placeholder="{{now}}" class="form-control" disabled />
+                </div>
+                {% endif %}
+              </div>
+              {% if not attendance %}
+              <div class="form-group">
+                <label for="exampleFormControlTextarea1">Notes</label>
+                <textarea name="notes" class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+              </div>
+              {% endif %}
+            </div>
+            <button class="btn btn-success">{{ buttonText }}</button>
+        </form>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="row mt-5">
+    <div class="col-12">
+       <div class="card mb-4">
+          <div class="card-header pb-0">
+             <h6>Todays Summary</h6>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+             <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                   <thead>
+                      <tr>
+                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
+                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Punch In</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Punch Out</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notes</th>
+                         
+                      </tr>
+                   </thead>
+                   <tbody>
+                      <tr>
+                         <td>
+                            <div class="d-flex px-2 py-1">
+                               <div class="d-flex flex-column justify-content-center">
+                                  <h6 class="mb-0 text-sm">{{ attendance.punch_in_date }}</h6>
+                               </div>
+                            </div>
+                         </td>
+                         <td>
+                            <p class="text-xs font-weight-bold mb-0">
+                              <span class="badge badge-sm bg-gradient-success" style="font-size: 14px;">{{ attendance.punch_in_time }}</span>
+                            </p>
+                         </td>
+                         <td class="align-middle text-center text-sm">
+                            <span class="badge badge-sm bg-gradient-danger" style="font-size: 14px;">{{ attendance.punch_out_time }}</span>
+                         </td>
+                         <td class="align-middle text-center">
+                            <span class="text-secondary text-xs font-weight-bold" style="font-size: 14px !important;">{{ attendance.notes }}</span>
+                         </td>
+                         
+                      </tr>
+                   </tbody>
+                </table>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
+ {% endif %}
+
+
+<user-summary></user-summary>
+
+
+{% endblock %}

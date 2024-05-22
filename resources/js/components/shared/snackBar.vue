@@ -17,7 +17,7 @@ import {snackBarStore} from '../../store';
 <style scoped>
     #snackbar {
     visibility: visible;
-    max-width: 250px;
+    max-width: 285px;
     margin-left: -125px;
     background-color: #04AA6D;
     color: #fff;

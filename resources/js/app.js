@@ -32,12 +32,18 @@ import { createApp } from 'vue'
 import ExampleComponent from './components/ExampleComponent';
 import UserIndex from './components/users/index.vue';
 import MetricesIndex from './components/metrices/index.vue';
+import RateIndex from './components/rate/index.vue';
+import UserSummary from './components/attendance/UserSummary.vue';
+import LeavesIndex from './components/leaves/LeavesIndex.vue';
 
 const app = createApp({
     components:{
         ExampleComponent,
         UserIndex,
-        MetricesIndex
+        MetricesIndex,
+        RateIndex,
+        UserSummary,
+        LeavesIndex
     },
     data() {
         return {

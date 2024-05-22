@@ -1,21 +1,21 @@
 import json
 import regex as re
-from rating.rules import user_rules
+from users.rules import user_rules
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 #from rating.helpers.json_response import jsonResponse
-from rating.validations import Validator
-from rating.helpers.general import is_ajax
+from django_easy_validation import Validator
+from helpers.general import is_ajax
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse as response, HttpResponseRedirect, JsonResponse
-from rating.helpers.general import make_pagination
+from helpers.general import make_pagination
 
 # Create your views here.
 
@@ -29,7 +29,7 @@ def authenticate_user(request):
     user = authenticate(username=username,password=password)
     if user is not None:
         login(request, user)
-        return redirect('/')
+        return redirect('/users')
     else:
         return response('error')
 
@@ -51,7 +51,7 @@ def create(request):
 def store(request):
     data = json.loads(request.body)
     errors = Validator.validate(request, {
-        "username": "required|unique:auth_user|max:10|min:6",
+        "username": "required|unique:auth_user|max:10|min:4",
         "email" : "required|email"
     })
     

@@ -21,8 +21,11 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('rate/',include("rating.urls")),
-    path('users/',include("users.urls"))
+    path('users/',include("users.urls")),
+    path('metrices/',include("metrices.urls")),
+    path('rate/',include("rate.urls")),
+    path('attendance/',include("attendance.urls")),
+    path('leaves/',include("leaves.urls")),
 ]
 
 urlpatterns+= static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
