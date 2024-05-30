@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'rate.apps.RateConfig',
     'attendance.apps.AttendanceConfig',
     'leaves.apps.LeavesConfig',
-    'controller.apps.ControllerConfig'
+    'controller.apps.ControllerConfig',
+    'dashboard.apps.DashboardConfig'
 ]
 
 MIDDLEWARE = [
