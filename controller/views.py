@@ -24,6 +24,9 @@ def authenticate_user(request):
     user = authenticate(username=username,password=password)
     if user is not None:
         login(request, user)
-        return redirect('/users')
+        if not request.user.is_superuser:
+            return redirect('/attendance')
+        else:
+            return redirect('/dashboard')
     else:
         return response('error')
