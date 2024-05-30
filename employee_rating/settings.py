@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from .local import *
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,8 +24,6 @@ SECRET_KEY = 'django-insecure-*d2s2ufce#e4c^gm739r^c%f&b6wz#66g0w*t^!8iuse6-$n2e
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = ['localhost:8000', '192.168.1.70:8000', '192.168.1.70', 'localhost']
 
 
 # Application definition
@@ -42,6 +41,7 @@ INSTALLED_APPS = [
     'rate.apps.RateConfig',
     'attendance.apps.AttendanceConfig',
     'leaves.apps.LeavesConfig',
+    'controller.apps.ControllerConfig'
 ]
 
 MIDDLEWARE = [
@@ -77,17 +77,6 @@ WSGI_APPLICATION = 'employee_rating.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "emps",
-        "USER": "postgres",
-        "PASSWORD": "password",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
-    }
-}
 
 
 # Password validation

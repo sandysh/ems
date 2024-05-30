@@ -19,20 +19,6 @@ from helpers.general import make_pagination
 
 # Create your views here.
 
-def login_user(request):
-    return render(request, 'auth/login.html')
-
-@require_http_methods('POST')
-def authenticate_user(request):
-    username = request.POST.get('username')
-    password = request.POST.get('password')
-    user = authenticate(username=username,password=password)
-    if user is not None:
-        login(request, user)
-        return redirect('/users')
-    else:
-        return response('error')
-
 @login_required
 def index(request):
     users = User.objects.all()

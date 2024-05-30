@@ -1,3 +1,5 @@
 node_modules
 Scripts
 Lib
+employee_rating/local.py
+__pycache__*
