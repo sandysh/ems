@@ -18,4 +18,6 @@ class Leaves(models.Model):
         ("CANCELLED","cancelled"),
     ]
     status = models.CharField(choices=LEAVES_STATUS, default="PENDING")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
     

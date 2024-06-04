@@ -3,6 +3,7 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse as response, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def auth_check(request):
@@ -30,3 +31,9 @@ def authenticate_user(request):
             return redirect('/dashboard')
     else:
         return response('error')
+    
+
+@login_required()
+def logout_user(request):
+    logout(request)
+    return redirect('/login')

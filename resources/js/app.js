@@ -35,6 +35,8 @@ import MetricesIndex from './components/metrices/index.vue';
 import RateIndex from './components/rate/index.vue';
 import UserSummary from './components/attendance/UserSummary.vue';
 import LeavesIndex from './components/leaves/LeavesIndex.vue';
+import DashStats from './components/dashboard/DashStats.vue';
+import DashPoints from './components/dashboard/PointsTable.vue'
 
 const app = createApp({
     components:{
@@ -43,7 +45,9 @@ const app = createApp({
         MetricesIndex,
         RateIndex,
         UserSummary,
-        LeavesIndex
+        LeavesIndex,
+        DashStats,
+        DashPoints
     },
     data() {
         return {

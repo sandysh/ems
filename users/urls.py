@@ -1,4 +1,6 @@
 from django.urls import path
+from django.http import request
+from django.shortcuts import redirect
 
 from . import views
 
