@@ -3,3 +3,4 @@ Scripts
 Lib
 employee_rating/local.py
 __pycache__/
+.env
