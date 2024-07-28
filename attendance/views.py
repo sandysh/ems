@@ -9,7 +9,7 @@ def index(request):
     attendance = None
     allAttendance = Attendance.objects.filter(user_id =request.user.id).values()
     try:
-        attendance = Attendance.objects.get(punch_in_date=date.today())
+        attendance = Attendance.objects.filter(punch_in_date=date.today()).filter(user_id =request.user.id).first()
     except:
         print("An exception occurred")
     buttonText = ''
@@ -33,7 +33,7 @@ def punch(request):
     today = date.today()
     now = datetime.now().strftime("%I:%M")
     try:
-        attendance = Attendance.objects.filter(punch_in_date=date.today())
+        attendance = Attendance.objects.filter(punch_in_date=date.today()).filter(user=request.user)
     except:
         print("An exception occurred")
     if attendance:
