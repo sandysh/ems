@@ -7,7 +7,7 @@ class Leaves(models.Model):
     ("CASUAL", "casual"),
     ("SICK", "sick"),
     ]
-    leave_type = models.CharField(choices=LEAVES_TYPES)
+    leave_type = models.CharField(choices=LEAVES_TYPES, max_length=50)
     from_date = models.DateField()
     to_date = models.DateField()
     reason = models.TextField()
@@ -17,7 +17,7 @@ class Leaves(models.Model):
         ("REJECTED","rejected"),
         ("CANCELLED","cancelled"),
     ]
-    status = models.CharField(choices=LEAVES_STATUS, default="PENDING")
+    status = models.CharField(choices=LEAVES_STATUS, default="PENDING", max_length=50)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
     
