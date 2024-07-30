@@ -24,19 +24,26 @@
 </head>
 
 <body class="g-sidenav-show   bg-gray-100">
-  <div class="min-height-300 bg-primary position-absolute w-100"></div>
   <main class="main-content mt-0 ps">
       <section>
           <div class="page-header min-vh-100">
               <div class="container">
                   <div class="row">
                       <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
-                          <div class="card card-plain">
-                              <div class="card-header pb-0 text-start">
+
+                          <div class="card card-plain shadow">
+                            <div class="card-header pb-0 text-start">
+                              {% if messages %}
+                              <ul class="messages">
+                                {% for message in messages %}
+                                  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                              </ul>
+                            {% endif %}
                                   <h4 class="font-weight-bolder">Sign In</h4>
                                   <p class="mb-0">Enter your email and password to sign in</p>
                               </div>
-                              <div class="card-body">
+                              <div class="card-body bg-white">
                                   <form role="form" method="POST" action="{% url 'authenticate' %}">
                                       {% csrf_token %}
                                       <div class="mb-3">

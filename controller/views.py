@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse as response, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 # Create your views here.
 
 def auth_check(request):
@@ -30,7 +31,8 @@ def authenticate_user(request):
         else:
             return redirect('/dashboard')
     else:
-        return response('error')
+        messages.error(request, "Wrong credentials, please try again",extra_tags="alert alert-danger text-white")
+        return redirect('/login')
     
 
 @login_required()
