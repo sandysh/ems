@@ -36,12 +36,6 @@
                                             <input v-model="data.username" name="username" class="form-control" type="text" value=""
                                                 id="username">
                                         </div>
-                                        <div class="form-group">
-                                            <label for="example-password-input"
-                                                class="form-control-label">Password</label>
-                                            <input v-model="data.password" name="password" class="form-control" type="password" value=""
-                                                id="example-password-input">
-                                        </div>
                                         <div class="form-check form-switch pb-2">
                                             <input v-model="data.is_superuser" name="is_admin" class="form-check-input" type="checkbox"
                                                 id="flexSwitchCheckDefault">

@@ -49,11 +49,15 @@
                   <td class="align-middle">
                     <a @click="edit(user)" href="javascript:;" class="text-white font-weight-bold text-xs btn btn-info btn-xs mx-2"
                       data-toggle="tooltip" data-original-title="Edit user">
-                      Edit
+                      <i class="fa fa-edit"></i>
                     </a>
                     <a @click="deleteUser(user)" href="javascript:;" class="text-white font-weight-bold text-xs btn btn-danger btn-xs"
                       data-toggle="tooltip" data-original-title="Edit user">
-                      Delete
+                      <i class="fa fa-trash"></i>
+                    </a>
+                    <a @click="updatePassword(user)" href="javascript:;" class="text-white font-weight-bold text-xs btn btn-success btn-xs mx-2"
+                      data-toggle="tooltip" data-original-title="Edit user">
+                      <i class="fa fa-eye-slash"></i>
                     </a>
                   </td>
                 </tr>
@@ -78,7 +82,9 @@ import editUserModal from './editUserModal.vue';
 import deleteModal from '../shared/deleteModal.vue';
 import snackBar from '../shared/snackBar.vue';
 import pagination from '../pagination.vue';
-import { userStore, snackBarStore, deleteFormStore } from '../../store.js';
+import Swal from "sweetalert2";
+
+import {userStore, snackBarStore, deleteFormStore, errorsStore} from '../../store.js';
 const users = reactive({ list: {}, pagination:{}});
 const user = ref({
   label: '',
@@ -93,6 +99,55 @@ function getUsers() {
     users.list = response.data.data
     users.pagination = response.data.pagination
   })
+}
+
+async function updatePassword(user) {
+  const {value: formValues} = await Swal.fire({
+    title: `Update "${user.username}'s" password`,
+    html: `
+    <input id="new-password" class="form-control" placeholder="new password">
+    <input id="confirm-password" class="form-control" placeholder="confirm new password">
+  `,
+    focusConfirm: false,
+    confirmButtonText: 'Update Now',
+    preConfirm: () => {
+      return [
+        document.getElementById("new-password").value,
+        document.getElementById("confirm-password").value
+      ];
+    }
+  })
+  if (formValues) {
+    let values = {new_password:formValues[0], confirm_password: formValues[1]}
+    console.log(values)
+    axios.put(`update/${user.id}/password`, values).then(response => {
+      if (response.data.status === 'success') {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: response.data.message || "Password has been successfully updated",
+          showConfirmButton: false,
+          timer: 1500
+        });
+      } else {
+        Swal.fire({
+          position: "top-end",
+          icon: "warning",
+          title: response.data.message || "Something went wrong, please try again later",
+          showConfirmButton: false,
+          timer: 1500
+        });
+      }
+    }).catch(error => {
+            Swal.fire({
+            position: "top-end",
+            icon: "warning",
+            title: error.response.data || "Something went wrong, please try again later",
+            showConfirmButton: false,
+            timer: 1500
+          });
+      })
+  }
 }
 
 function updatePageNumber(page){
@@ -116,16 +171,6 @@ function edit(user) {
   this.entity = user
 }
 
-function authenticate() {
-  axios.post("http://192.168.1.66:8000/en/playerlogin/", {
-    "username": "student400",
-    "password": "student300"
-  }).then(response => {
-    console.log('msg',response.data)
-  }).catch(error => {
-    console.log('errors', error.response.data)
-  })
-}
 
 onMounted(() => {
   getUsers();

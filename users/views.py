@@ -125,3 +125,10 @@ def update(request, user_id):
 def destroy(request,user_id):
     user = User.objects.filter(id=user_id).delete()
     return JsonResponse('success', safe=False)
+
+@login_required
+@require_http_methods(['PUT'])
+def updateUserPassword(request, user_id):
+    data = json.loads(request.body)
+    user = User.objects.filter(id=user_id).update(password=make_password(data['new_password']))
+    return JsonResponse({"status": 'success'}, safe=False)
