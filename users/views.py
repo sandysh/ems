@@ -2,7 +2,7 @@ import json
 import regex as re
 from users.rules import user_rules
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
@@ -125,3 +125,56 @@ def update(request, user_id):
 def destroy(request,user_id):
     user = User.objects.filter(id=user_id).delete()
     return JsonResponse('success', safe=False)
+
+# @login_required
+# def profile(request, username):
+#     user = get_object_or_404(User, username=username)
+    
+#     if request.method == 'POST':
+#         if 'update_profile' in request.POST:
+#             profile_form = UserForm(request.POST, request.FILES, instance=user)
+#             if profile_form.is_valid():
+#                 profile_form.save()
+#                 return redirect('profile', username=user.username)
+#         elif 'change_password' in request.POST:
+#             password_form = CustomPasswordChangeForm(user=user, data=request.POST)
+#             if password_form.is_valid():
+#                 user = password_form.save()
+#                 update_session_auth_hash(request, user)  # Important for keeping the user logged in
+#                 return redirect('profile', username=user.username)
+#     else:
+#         profile_form = UserProfileForm(instance=user)
+#         password_form = CustomPasswordChangeForm(user=user)
+    
+#     context = {
+#         'user': user,
+#         'profile_form': profile_form,
+#         'password_form': password_form,
+#     }
+#     return render(request, 'users/profile.html', context)
+
+@login_required
+def profile(request, username):
+    user = get_object_or_404(User, username=username)
+
+    if request.method == 'POST':
+        if 'profile_picture' in request.FILES:
+            profile_picture = request.FILES.get('profile_picture')
+            user.profile_picture = profile_picture
+            user.save()
+            return redirect('profile', username=user.username)
+
+        if 'password' in request.POST:
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+            if new_password1 and new_password2:
+                if new_password1 == new_password2:
+                    user.set_password(new_password1)
+                    user.save()
+                    return redirect('profile', username=user.username)
+                else:
+                    return render(request, 'users/profile.html', {'user': user, 'error': 'Passwords do not match'})
+        
+
+
+    return render(request, 'users/profile.html', {'user': request.user})

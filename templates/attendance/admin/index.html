@@ -1,0 +1,109 @@
+{% extends "shared/base.html" %}
+{% block content%}
+
+
+ <div class="row mt-5">
+    <div class="col-12">
+       <div class="card mb-4">
+          <div class="card-header pb-0">
+            <div class="row">
+                <div class="col-md-8 col-xs-12"> 
+                    <h6>Attendance History</h6>
+                </div>
+                <div class="col-4">
+                    <form method="get" action="{% url 'index' %}">
+                       <div class="row">
+                            <div class="col-md-8">
+                                <input type="text" name="date_range" class="form-control datepicker" id="dateRange" 
+                                        placeholder="Please Select Date" 
+                                        value="{{ date_range }}">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                       </div>
+                   </form>                
+                </div>
+            </div>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+             <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                   <thead>
+                      <tr>
+                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ">User</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ">Punch In</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Punch Out</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notes</th>
+                      </tr>
+                   </thead>
+                   <tbody>
+                      {% for record in record_attendance %}
+                      <tr>
+                         <td>
+                            <div class="d-flex px-2 py-1">
+                               <div class="d-flex flex-column justify-content-center">
+                                  <h6 class="mb-0 text-sm">{{ record.punch_in_date }}</h6>
+                               </div>
+                            </div>
+                         </td>
+                         <td class="align-middle text-center">
+                            <p class="text-xs font-weight-bold mb-0">
+                              <span class="mb-0 text-sm" style="font-size: 14px;">{{ record.user.get_full_name }}</span>
+                            </p>
+                         </td>
+                         <td class="align-middle text-center">
+                            <p class="text-xs font-weight-bold mb-0">
+                                <span class="badge badge-sm bg-gradient-success" style="font-size: 14px;">{{ record.punch_in_time }}</span>
+                         </td>
+                         <td class="align-middle text-center">
+                            <p class="text-xs font-weight-bold mb-0">
+                            <span class="badge badge-sm bg-gradient-danger" style="font-size: 14px ;">{{ record.punch_out_time }}</span>
+                         </td>
+                         <td class="align-middle text-center">
+                            <span class="text-secondary text-xs font-weight-bold" style="font-size: 14px !important;">{{ record.notes }}</span>
+                         </td>
+                      </tr>
+                      {% empty %}
+                      <tr>
+                         <td colspan="5" class="text-center text-secondary text-xs font-weight-bold">No records available</td>
+                      </tr>
+                      {% endfor %}
+                   </tbody>
+                </table>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
+
+
+ <script>
+    $(document).ready(function () {
+        $('#dateRange').datepicker({
+            format: 'yyyy-mm-dd',
+            startDate: '-3d',
+            endDate: '+3d',
+            autoclose: true,
+            todayHighlight: true,
+            inputs: [$('#fromDate'), $('#toDate')],
+            clearBtn: true,
+            multidate: true,
+            orientation: "bottom auto",
+        }).on('changeDate', function(e) {
+            var dates = $('#dateRange').datepicker('getDates');
+            if (dates.length === 2) {
+                $('#fromDate').val(dates[0].toISOString().split('T')[0]);
+                $('#toDate').val(dates[1].toISOString().split('T')[0]);
+            }
+        });
+    });
+    </script>
+    
+    
+
+
+
+
+{% endblock %}

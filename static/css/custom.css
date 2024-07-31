@@ -1,3 +1,8 @@
 .modal {
     background: rgba(0,0,0,0.5);
 }
+
+.datepicker.flatpickr-input {
+    background-color: #fff;
+    padding: 8px;
+}
