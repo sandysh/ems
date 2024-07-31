@@ -18,37 +18,37 @@
                                     <div class="card-body px-0 pt-0 pb-2">
                                         <div class="form-group">
                                             <label for="first name" class="form-control-label">First Name</label>
-                                            <input v-model="data.first_name" name="first_name" class="form-control" type="text" value=""
+                                            <input v-model="data.list.first_name" name="first_name" class="form-control" type="text" value=""
                                                 id="first-name">
                                         </div>
                                         <div class="form-group">
                                             <label for="last name" class="form-control-label">last Name</label>
-                                            <input v-model="data.last_name" name="last_name" class="form-control" type="text" value=""
+                                            <input v-model="data.list.last_name" name="last_name" class="form-control" type="text" value=""
                                                 id="last-name">
                                         </div>
                                         <div class="form-group">
                                             <label for="example-email-input" class="form-control-label">Email</label>
-                                            <input v-model="data.email" name="email" class="form-control" type="email" value=""
+                                            <input v-model="data.list.email" name="email" class="form-control" type="email" value=""
                                                 id="example-email-input">
                                         </div>
                                         <div class="form-group">
                                             <label for="username" class="form-control-label">Username</label>
-                                            <input v-model="data.username" name="username" class="form-control" type="text" value=""
+                                            <input v-model="data.list.username" name="username" class="form-control" type="text" value=""
                                                 id="username">
                                         </div>
                                         <div class="form-group">
                                             <label for="example-password-input"
                                                 class="form-control-label">Password</label>
-                                            <input v-model="data.password" name="password" class="form-control" type="password" value=""
+                                            <input v-model="data.list.password" name="password" class="form-control" type="password" value=""
                                                 id="example-password-input">
                                         </div>
                                         <div class="form-check form-switch pb-2">
-                                            <input v-model="data.is_superuser" name="is_admin" class="form-check-input" type="checkbox"
+                                            <input v-model="data.list.is_superuser" name="is_admin" class="form-check-input" type="checkbox"
                                                 id="flexSwitchCheckDefault">
                                             <label class="form-check-label" for="flexSwitchCheckDefault">Admin</label>
                                         </div>
                                         <div class="form-check form-switch">
-                                            <input v-model="data.is_active" name="is_active" class="form-check-input" type="checkbox"
+                                            <input v-model="data.list.is_active" name="is_active" class="form-check-input" type="checkbox"
                                                 id="flexSwitchCheckDefault" checked="">
                                             <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
                                         </div>
@@ -74,20 +74,13 @@
     import { onMounted, reactive, ref } from 'vue';
     import { userStore, errorsStore } from '../../store';
     const emit = defineEmits(['refresh-table'])
-    const data = reactive({
-        first_name: '',
-        last_name: '',
-        username: '',
-        email: '',
-        password: '',
-        is_superuser: false,
-        is_active: true
-    })
+    const data = reactive({list:{}})
 
     function submit() {
         errorsStore.list = {}
         errorsStore.show = false
-        axios.post('store',data).then(response => {
+        axios.post('store',data.list).then(response => {
+            data.list = {}
             userStore.showUserForm = false
             emit('refresh-table')
             // console.log('msg',response.data)
@@ -99,6 +92,7 @@
     }
 
     function cancel() {
+        data.list = {}
         userStore.showUserForm = false;
     }
 

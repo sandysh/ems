@@ -1,4 +1,8 @@
 {% extends "shared/base.html" %}
 {% block content%}
-    <leaves-index></leaves-index>
+    {% if request.user.is_superuser %}
+        <admin-leaves-index></admin-leaves-index>
+    {% else %}
+        <leaves-index></leaves-index>
+    {% endif %}
 {% endblock %}

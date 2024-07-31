@@ -4,6 +4,7 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+
 require('./bootstrap');
 
 window.Vue = require('vue').default;
@@ -35,6 +36,7 @@ import MetricesIndex from './components/metrices/index.vue';
 import RateIndex from './components/rate/index.vue';
 import UserSummary from './components/attendance/UserSummary.vue';
 import LeavesIndex from './components/leaves/LeavesIndex.vue';
+import AdminLeavesIndex from './components/leaves/AdminLeavesIndex.vue';
 import DashStats from './components/dashboard/DashStats.vue';
 import DashPoints from './components/dashboard/PointsTable.vue'
 
@@ -46,6 +48,7 @@ const app = createApp({
         RateIndex,
         UserSummary,
         LeavesIndex,
+        AdminLeavesIndex,
         DashStats,
         DashPoints
     },
