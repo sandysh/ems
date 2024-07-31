@@ -10,6 +10,7 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from helpers.general import make_pagination
+from dashboard.user_serializer import UsernameSerializer
 
 def index(request):
     return render(request,"leaves/index.html")
@@ -46,9 +47,15 @@ def all(request):
          else:
             date_format = '%Y-%m-%d'
             fromDate = datetime.strptime(body['range'], date_format)
-            leaves = Leaves.objects.filter(user_id =request.user.id, from_date=fromDate).order_by('-id')     
-    else:      
-        leaves = Leaves.objects.filter(user=request.user).order_by('-id')
+            if request.user.is_superuser:
+                leaves = Leaves.objects.filter(from_date=fromDate).select_related('user').order_by('-id')
+            else:
+                leaves = Leaves.objects.filter(user_id =request.user.id, from_date=fromDate).order_by('-id')
+    else:
+        if request.user.is_superuser:
+            leaves = UsernameSerializer(Leaves.objects.order_by('-id'))
+        else:
+            leaves = Leaves.objects.filter(user=request.user).order_by('-id')
     paginated_data = make_pagination(request, leaves)
     return JsonResponse(paginated_data, safe=False)    
 

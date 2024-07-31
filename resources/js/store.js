@@ -40,7 +40,7 @@ export const leavesStore = reactive({
         let response = await post(`all?page=${this.current_page}`, this.filter)
         this.list = response.data.data
         this.pagination = response.data.pagination
-    }, 
+    }
 })
 
 export const successMessage = function(msg){
