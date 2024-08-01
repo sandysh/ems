@@ -2,10 +2,11 @@ import json
 import regex as re
 from users.rules import user_rules
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
+from django.contrib import messages
 #from rating.helpers.json_response import jsonResponse
 from django_easy_validation import Validator
 from helpers.general import is_ajax
@@ -16,6 +17,7 @@ from django.core.serializers import serialize
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse as response, HttpResponseRedirect, JsonResponse
 from helpers.general import make_pagination
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -126,9 +128,37 @@ def destroy(request,user_id):
     user = User.objects.filter(id=user_id).delete()
     return JsonResponse('success', safe=False)
 
+
+@login_required
+def profile(request, username):
+    user = get_object_or_404(User, username=username)
+    
+    if user != request.user:
+        messages.error(request, "You do not have permission to view this profile.")
+        return redirect('profile', username=request.user.username)
+    
+    if request.method == 'POST':
+        if 'new_password' in request.POST:
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('new_password2')
+            
+            if new_password != confirm_password:
+                messages.error(request, "Passwords do not match")
+                return redirect('profile', username=username)
+            
+            if new_password:
+                request.user.set_password(new_password)
+                request.user.save()
+                
+                messages.success(request, "Password updated successfully. Please log in again.")
+                return redirect('login')
+
+    return render(request, 'users/profile.html', {'user': user})
+
 @login_required
 @require_http_methods(['PUT'])
 def updateUserPassword(request, user_id):
     data = json.loads(request.body)
     user = User.objects.filter(id=user_id).update(password=make_password(data['new_password']))
     return JsonResponse({"status": 'success'}, safe=False)
+

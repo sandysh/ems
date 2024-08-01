@@ -10,3 +10,9 @@
 .v-leave-to {
   opacity: 0;
 }
+
+
+.datepicker.flatpickr-input {
+  background-color: #fff;
+  padding: 8px;
+}
