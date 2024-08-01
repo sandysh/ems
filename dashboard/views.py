@@ -10,9 +10,11 @@ from .user_serializer import UserSerializer
 from .rating_serializer import RatingSerializer
 from django.http import JsonResponse, HttpResponse
 import pendulum
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
+@login_required
 def index(request):
     return render(request, 'dashboard.html')
 

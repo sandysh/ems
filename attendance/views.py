@@ -5,6 +5,7 @@ from datetime import date, datetime
 from attendance.models import Attendance
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 
 
 def dateMaker(range):
@@ -23,7 +24,7 @@ def dateMaker(range):
     return [fromDate, toDate]
 
 
-
+@login_required
 def index(request):
     allAttendance = []
     attendance = None
@@ -82,7 +83,7 @@ def index(request):
 
 
 
-
+@login_required
 def punch(request):
     attendance = None
     newData = {}
