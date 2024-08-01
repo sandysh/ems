@@ -33,7 +33,6 @@ def index(request):
     from_date = None
     to_date = None
 
-
     if date_range:
         try:
             from_date, to_date = dateMaker(date_range)
@@ -48,50 +47,40 @@ def index(request):
 
     buttonText = 'Punch Out' if attendance else 'Punch In'
 
+    users = User.objects.all()
+
+    attendance_records = []
+
     if from_date and to_date:
-        allAttendance = Attendance.objects.filter(
-            user_id=request.user.id,
+        records = Attendance.objects.filter(
             punch_in_date__range=[from_date.date(), to_date.date()]
-        ).values()
+        ).select_related('user')
     else:
-        allAttendance = Attendance.objects.filter(user_id=request.user.id).values()
+        records = Attendance.objects.filter(punch_in_date=date.today()).select_related('user')
 
+    for user in users:
+        user_record = {
+            'user': user,
+            'attendance': records.filter(user=user).first()
+        }
+        attendance_records.append(user_record)
 
-    if request.user.is_superuser:
-        users = User.objects.all()
-        
-        if from_date and to_date:
-            record_attendance = Attendance.objects.filter(
-                punch_in_date__range=[from_date.date(), to_date.date()]
-            ).select_related('user')
-        else:
-            record_attendance = Attendance.objects.filter(
-                punch_in_date=date.today()
-            ).select_related('user')
-        
-        context = {
-            'users': users,
-            'record_attendance': record_attendance,
-            'today': date.today(),
-            'now': datetime.now().strftime("%I:%M %p"),
-            'attendance': attendance,
-            'allAttendance': allAttendance,
-            'buttonText': buttonText,
-            'date_range': date_range,
-        }
-        template = "attendance/admin/index.html"
-    else:
-        context = {
-            'today': date.today(),
-            'now': datetime.now().strftime("%I:%M %p"),
-            'buttonText': buttonText,
-            'attendance': attendance,
-            'allAttendance': allAttendance,
-            'date_range': date_range,
-        }
-        template = "attendance/user/index.html"
+    context = {
+        'users': users,
+        'attendance_records': attendance_records,
+        'today': date.today(),
+        'now': datetime.now().strftime("%I:%M %p"),
+        'attendance': attendance,
+        'allAttendance': allAttendance,
+        'buttonText': buttonText,
+        'date_range': date_range,
+    }
+
+    template = "attendance/admin/index.html" if request.user.is_superuser else "attendance/user/index.html"
 
     return render(request, template, context)
+
+
 
 
 def punch(request):

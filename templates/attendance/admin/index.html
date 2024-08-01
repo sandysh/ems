@@ -39,38 +39,64 @@
                       </tr>
                    </thead>
                    <tbody>
-                      {% for record in record_attendance %}
-                      <tr>
+                     {% for record in attendance_records %}
+                     <tr>
                          <td>
-                            <div class="d-flex px-2 py-1">
-                               <div class="d-flex flex-column justify-content-center">
-                                  <h6 class="mb-0 text-sm">{{ record.punch_in_date }}</h6>
-                               </div>
-                            </div>
+                             <div class="d-flex px-2 py-1">
+                                 <div class="d-flex flex-column justify-content-center">
+                                     <h6 class="mb-0 text-sm">
+                                         {% if record.attendance %}
+                                             {{ record.attendance.punch_in_date }}
+                                         {% else %}
+                                             No Record
+                                         {% endif %}
+                                     </h6>
+                                 </div>
+                             </div>
                          </td>
                          <td class="align-middle text-center">
-                            <p class="text-xs font-weight-bold mb-0">
-                              <span class="mb-0 text-sm" style="font-size: 14px;">{{ record.user.get_full_name }}</span>
-                            </p>
+                             <p class="text-xs font-weight-bold mb-0">
+                                 <span class="mb-0 text-sm" style="font-size: 14px;">{{ record.user.get_full_name }}</span>
+                             </p>
                          </td>
                          <td class="align-middle text-center">
-                            <p class="text-xs font-weight-bold mb-0">
-                                <span class="badge badge-sm bg-gradient-success" style="font-size: 14px;">{{ record.punch_in_time }}</span>
+                             <p class="text-xs font-weight-bold mb-0">
+                                 {% if record.attendance %}
+                                     <span class="badge badge-sm bg-gradient-success" style="font-size: 14px;">
+                                         {{ record.attendance.punch_in_time }}
+                                     </span>
+                                 {% else %}
+                                     No Record
+                                 {% endif %}
+                             </p>
                          </td>
                          <td class="align-middle text-center">
-                            <p class="text-xs font-weight-bold mb-0">
-                            <span class="badge badge-sm bg-gradient-danger" style="font-size: 14px ;">{{ record.punch_out_time }}</span>
+                             <p class="text-xs font-weight-bold mb-0">
+                                 {% if record.attendance %}
+                                     <span class="badge badge-sm bg-gradient-danger" style="font-size: 14px;">
+                                         {{ record.attendance.punch_out_time }}
+                                     </span>
+                                 {% else %}
+                                     No Record
+                                 {% endif %}
+                             </p>
                          </td>
                          <td class="align-middle text-center">
-                            <span class="text-secondary text-xs font-weight-bold" style="font-size: 14px !important;">{{ record.notes }}</span>
+                             <span class="text-secondary text-xs font-weight-bold" style="font-size: 14px !important;">
+                                 {% if record.attendance %}
+                                     {{ record.attendance.notes }}
+                                 {% else %}
+                                     No Record
+                                 {% endif %}
+                             </span>
                          </td>
-                      </tr>
-                      {% empty %}
-                      <tr>
+                     </tr>
+                     {% empty %}
+                     <tr>
                          <td colspan="5" class="text-center text-secondary text-xs font-weight-bold">No records available</td>
-                      </tr>
-                      {% endfor %}
-                   </tbody>
+                     </tr>
+                     {% endfor %}
+                 </tbody>                 
                 </table>
              </div>
           </div>

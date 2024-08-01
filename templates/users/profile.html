@@ -152,30 +152,29 @@
         </div>
       </div>
 
-      <form action="{% url 'profile' username=user.username %}" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="profile_picture">Update Profile Picture</label>
-            <input type="file" name="profile_picture" id="profile_picture" class="form-control">
-        </div>
-        <button type="submit" class="btn btn-primary mt-2">Update Picture</button>
-    </form>
-
-    <form action="{% url 'profile' username=user.username %}" method="post">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="new_password1">New Password</label>
-            <input type="password" name="new_password1" id="new_password1" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="new_password2">Confirm New Password</label>
-            <input type="password" name="new_password2" id="new_password2" class="form-control" required>
-        </div>
-        {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-        <button type="submit" class="btn btn-primary mt-2">Change Password</button>
-    </form>
+      <h3>Change Password</h3>
+      <form method="post" action="{% url 'change_password' username=request.user.username %}">
+          {% csrf_token %}
+          <label for="new_password">New Password:</label>
+          <input type="password" id="new_password" name="new_password" required>
+          
+          <label for="new_password2">Confirm New Password:</label>
+          <input type="password" id="new_password2" name="new_password2" required>
+          
+          <button type="submit" class="btn btn-primary mt-2">Change Password</button>
+      </form>
+      
+      {% if messages %}
+          <div class="messages">
+              {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">
+                      {{ message }}
+                  </div>
+              {% endfor %}
+          </div>
+      {% endif %}
+      
+    
     </div>
   </div>
 
