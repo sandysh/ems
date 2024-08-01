@@ -107,14 +107,12 @@
                     <div class="card-header pb-0">
                         <div class="row">
                             <div class="col-1">
-                                <h6>My Leaves</h6>
+                                <h6>Filter Leaves</h6>
                             </div>
                             <div class="col-2">
                                 <input v-model="leavesStore.filter.range" class="form-control datepicker" placeholder="Filter" type="text" onfocus="focused(this)" onfocusout="defocused(this)">
                             </div>
-                            <div class="col-2 offset-7">
-                                <button @click="showForm" class="btn btn-success">Apply Leave </button>
-                            </div>
+
                         </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
@@ -122,6 +120,7 @@
                             <table class="table align-items-center justify-content-center mb-0">
                             <thead>
                                 <tr>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">User</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Type</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">From</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">To</th>
@@ -134,9 +133,16 @@
                                 <tr v-for="leave in leavesStore.list" :key="leave.id">
                                     <td>
                                         <div class="d-flex px-2">
-                                        <div class="my-auto">
-                                            <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type }}</h6>
+                                          <div class="my-auto">
+                                              <h6 class="mb-0 text-sm text-capitalize">{{ leave.user.first_name }}</h6>
+                                          </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex px-2">
+                                          <div class="my-auto">
+                                              <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type }}</h6>
+                                          </div>
                                         </div>
                                     </td>
                                     <td>
