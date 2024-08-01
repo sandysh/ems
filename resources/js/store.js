@@ -1,5 +1,5 @@
 import { reactive, watch } from "vue";
-import { post } from "./kit";
+import { post, put } from "./kit";
 import Swal from 'sweetalert2';
 
 export const userStore = reactive({
@@ -26,6 +26,7 @@ export const errorsStore = reactive({
 export const leavesStore = reactive({
     showLeavesForm: false,
     list: {},
+    stats: {},
     pagination: {},
     current_page: 1,
     form: {
@@ -34,12 +35,28 @@ export const leavesStore = reactive({
         "reason": '',
     },
     filter: {
-        range: ''
-    },    
+        range: '',
+        status: 'all'
+    },
+    leave: {
+        list:{},
+        status: ''
+    },
     async getMyLeaves() {
         let response = await post(`all?page=${this.current_page}`, this.filter)
         this.list = response.data.data
         this.pagination = response.data.pagination
+    },
+    async getStats(){
+        let response = await post(`stats`, this.filter)
+        console.log('stats', response.data)
+        this.stats = response.data
+    },
+    async updateStatus(leave) {
+        let response = await put(`${leave.id}/update/status`, {status:leave.status})
+        if (response.data.status === 'success'){
+            successMessage(response.data.message)
+        }
     }
 })
 

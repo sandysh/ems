@@ -22,7 +22,7 @@
                         </div>
                         <label>Date</label>
                         <div class="input-group mb-3">
-                            <input required v-model="leavesStore.form.leave_date_range" class="form-control datepicker" placeholder="Please select date" type="text" onfocus="focused(this)" onfocusout="defocused(this)">
+                            <input required v-model="leavesStore.form.leave_date" class="form-control datepicker" placeholder="Please select date" type="text" onfocus="focused(this)" onfocusout="defocused(this)">
                         </div>
                         <label for="reason">Reason</label>
                         <div class="input-group">
