@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     'attendance.apps.AttendanceConfig',
     'leaves.apps.LeavesConfig',
     'controller.apps.ControllerConfig',
-    'dashboard.apps.DashboardConfig'
+    'dashboard.apps.DashboardConfig',
+    'userprofile.apps.UserprofileConfig'
 ]
 
 MIDDLEWARE = [

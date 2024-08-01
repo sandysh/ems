@@ -130,32 +130,6 @@ def destroy(request,user_id):
 
 
 @login_required
-def profile(request, username):
-    user = get_object_or_404(User, username=username)
-    
-    if user != request.user:
-        messages.error(request, "You do not have permission to view this profile.")
-        return redirect('profile', username=request.user.username)
-    
-    if request.method == 'POST':
-        if 'new_password' in request.POST:
-            new_password = request.POST.get('new_password')
-            confirm_password = request.POST.get('new_password2')
-            
-            if new_password != confirm_password:
-                messages.error(request, "Passwords do not match")
-                return redirect('profile', username=username)
-            
-            if new_password:
-                request.user.set_password(new_password)
-                request.user.save()
-                
-                messages.success(request, "Password updated successfully. Please log in again.")
-                return redirect('login')
-
-    return render(request, 'users/profile.html', {'user': user})
-
-@login_required
 @require_http_methods(['PUT'])
 def updateUserPassword(request, user_id):
     data = json.loads(request.body)

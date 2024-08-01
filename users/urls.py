@@ -13,7 +13,5 @@ urlpatterns = [
     path("<int:user_id>/delete",views.destroy, name="deleteUser"),
 
     path("update/<int:user_id>",views.update, name="updateUser"), 
-    path("profile/<str:username>", views.profile, name="profile"),
-    path('profile/<str:username>/change-password/', views.profile, name='change_password'),
     path("update/<int:user_id>/password",views.updateUserPassword, name="updateUserPassword"),
 ]
