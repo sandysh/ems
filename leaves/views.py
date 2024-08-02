@@ -71,7 +71,7 @@ def all(request):
 @login_required
 def update(request, leave_id):
     leave = json.loads(request.body)
-    dateRange = leave['leave_date_range'].split(" to ")
+    dateRange = leave['leave_date'].split(" to ")
     newData = {
         "leave_type": leave['leave_type'],
         "from_date": dateRange[0],
@@ -79,7 +79,7 @@ def update(request, leave_id):
         "reason": leave['reason'],
     }
     Leaves.objects.filter(pk=leave_id).update(**newData)
-    return JsonResponse('success', safe=False)
+    return JsonResponse({"status": "success", "message": "Leave updated successfully"}, safe=False)
 
 
 @login_required

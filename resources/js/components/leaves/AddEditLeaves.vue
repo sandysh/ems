@@ -45,7 +45,9 @@
 <script setup>
 import {onMounted, reactive} from 'vue';
 import { get, post, put } from '../../kit.js';
-import { leavesStore, snackBarStore, successMessage, errorsStore } from '../../store.js';
+import { leavesStore} from '../../store/leavesStore';
+import {errorsStore} from "../../store/errorStore";
+import { successMessage } from "../../store/messageStore";
 
 async function submit() {
     let response = await post('store',leavesStore.form)
@@ -63,7 +65,7 @@ async function submit() {
 
 async function update() {
     let response = await put(leavesStore.form.id+'/update', leavesStore.form)
-    if(response.status === 200){
+    if(response.status === 200 && response.data.status ==="success"){
         successMessage('Leave updated')
         leavesStore.showLeavesForm = false
         leavesStore.form = {

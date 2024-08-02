@@ -183,13 +183,13 @@
 <script setup>
 import { onMounted, reactive, watch } from 'vue';
 import AddEditLeaves  from './AddEditLeaves.vue'
-import { leavesStore, snackBarStore } from '../../store';
+import { leavesStore } from '../../store/leavesStore';
 import Swal from 'sweetalert2';
 import { put } from '../../kit';
 import pagination from '../pagination.vue';
 
 watch(leavesStore.filter, async (newFilter, oldFilter) => {
-  leavesStore.getMyLeaves()
+ await  leavesStore.getMyLeaves()
 })
 
 function showForm(){

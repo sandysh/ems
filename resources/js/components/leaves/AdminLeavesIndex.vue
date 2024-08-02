@@ -168,12 +168,13 @@
                                         <span class="text-sm font-weight-bold">{{ leave.reason }}</span>
                                     </td>
                                     <td>
-                                        <select v-model="leave.status" @change="updateStatus(leave)" class="form-control" id="exampleFormControlSelect1">
+                                        <select v-if="leave.status !== 'CANCELLED'" v-model="leave.status" @change="updateStatus(leave)" class="form-control" id="exampleFormControlSelect1">
                                           <option value="APPROVED">Approved</option>
                                           <option value="PENDING">Pending</option>
                                           <option value="REJECTED">Rejected</option>
                                           <option value="CANCELLED">Cancelled</option>
                                         </select>
+                                      <label v-else for="">{{ leave.status }}</label>
                                     </td>
 
                                     <td class="">
@@ -196,7 +197,6 @@
         <Transition>
             <add-edit-leaves v-if="leavesStore.showLeavesForm"></add-edit-leaves>
         </Transition>
-        <snack-bar v-show="snackBarStore.snackbarMessage!==''"></snack-bar>
     </div>
 
 </template>
@@ -204,14 +204,13 @@
 <script setup>
 import { onMounted, reactive, watch } from 'vue';
 import AddEditLeaves  from './AddEditLeaves.vue'
-import { leavesStore, snackBarStore } from '../../store';
+import { leavesStore } from '../../store/leavesStore';
 import Swal from 'sweetalert2';
-import { put } from '../../kit';
 import pagination from '../pagination.vue';
 
 watch(leavesStore.filter, async (newFilter, oldFilter) => {
-  leavesStore.getMyLeaves()
-  leavesStore.getStats()
+  await leavesStore.getMyLeaves()
+  await leavesStore.getStats()
 })
 
 function showForm(){
