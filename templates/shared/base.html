@@ -171,6 +171,9 @@
   <script src="{% static "js/argon-dashboard.min.js" %}"></script>
   <script src="{% static "js/plugins/flatpickr.min.js" %}"></script>
 
+  {% block scripts%}
+  {% endblock %}
+
   <script>
      if (document.querySelector('.datepicker')) {
         flatpickr('.datepicker', {
