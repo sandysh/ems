@@ -16,3 +16,4 @@ celery>=5.2
 django-celery-beat>=2.4
 redis>=4.6.0
 load-dotenv==0.1.0
+Pillow==9.0.1
