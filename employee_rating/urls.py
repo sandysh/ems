@@ -28,6 +28,7 @@ urlpatterns = [
     path('rate/',include("rate.urls")),
     path('attendance/',include("attendance.urls")),
     path('leaves/',include("leaves.urls")),
+    path('profile/',include("userprofile.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
