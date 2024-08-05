@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-*d2s2ufce#e4c^gm739r^c%f&b6wz#66g0w*t^!8iuse6-$n2e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(",")
-print('ALLOWED',ALLOWED_HOSTS)
-print('DATABASE NAME',os.getenv("DATABASE_NAME"))
+
 CSRF_TRUSTED_ORIGINS = ['https://hrm.ajnaenterprise.com']
 DATABASES = {
     "default": {
@@ -146,3 +145,6 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL='/controller/login/'
+
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
