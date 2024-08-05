@@ -1,0 +1,60 @@
+{% extends "shared/base.html" %}
+{% block content %}
+
+<div class="row mt-5">
+    <div class="col-12">
+       <div class="card mb-4">
+          <div class="card-header pb-0">
+            <div class="row">
+                <div class="col-md-8 col-xs-12"> 
+                    <h6>Roles</h6>
+                </div>
+                <div class="col-4 text-right">
+                    <a href="{% url 'add_role' %}" class="btn btn-primary">Add Role</a>
+                </div>
+            </div>
+          </div>
+          <div class="card-body px-0 pt-0 pb-2">
+             <div class="table-responsive p-0">
+                <table class="table align-items-center mb-0">
+                   <thead>
+                      <tr>
+                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">S.N.</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Roles</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Permissions</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                      </tr>
+                   </thead>
+                   <tbody>
+                     {% for group_info in group_user_list %}
+                     <tr>
+                         <td>
+                            <div class="d-flex flex-column justify-content-center px-3">
+                                <h6 class="mb-0 text-sm">{{ forloop.counter }}</h6>
+                            </div>
+                         </td>
+                         <td class="align-middle text-center">
+                             <p class="text-sm font-weight-bold mb-0">{{ group_info.group.name }}</p>
+                         </td>
+                         <td class="align-middle text-center">
+                                <a href="{% url 'permissions' group_info.group.id %}" class="badge bg-gradient-secondary">View Permissions</a>
+                         </td>
+                         <td class="align-middle text-center">
+                             <a href="{% url 'edit_role' group_info.group.id %}" class="badge badge-sm bg-warning me-2">Edit</a>
+                             <a href="{% url 'delete_role' group_info.group.id %}" class="badge badge-sm bg-danger">Delete</a>
+                         </td>
+                     </tr>
+                     {% empty %}
+                     <tr>
+                         <td colspan="4" class="text-center text-secondary text-xs font-weight-bold">No roles available</td>
+                     </tr>
+                     {% endfor %}
+                 </tbody>                 
+                </table>
+             </div>
+          </div>
+       </div>
+    </div>
+ </div>
+
+{% endblock %}
