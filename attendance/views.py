@@ -56,7 +56,7 @@ def index(request):
     for user in users:
         user_record = {
             'user': user,
-            'attendance': records.filter(user=user).first()
+            'attendance': records.filter(user=user).first(),
         }
         attendance_records.append(user_record)
 
