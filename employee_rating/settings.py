@@ -40,6 +40,13 @@ DATABASES = {
     }
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
 
 # Application definition
 
@@ -58,7 +65,8 @@ INSTALLED_APPS = [
     'leaves.apps.LeavesConfig',
     'controller.apps.ControllerConfig',
     'dashboard.apps.DashboardConfig',
-    'userprofile.apps.UserprofileConfig'
+    'userprofile.apps.UserprofileConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
