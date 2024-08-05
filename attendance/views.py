@@ -56,7 +56,7 @@ def index(request):
     for user in users:
         user_record = {
             'user': user,
-            'attendance': records.filter(user=user).first()
+            'attendance': records.filter(user=user).first(),
         }
         attendance_records.append(user_record)
 
@@ -73,6 +73,38 @@ def index(request):
     template = "attendance/admin/index.html" if request.user.is_superuser else "attendance/user/index.html"
 
     return render(request, template, context)
+
+
+@login_required
+def attendance_history(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    date_range = request.GET.get('date_range', '')
+    from_date = None
+    to_date = None
+
+    if from_date and to_date:
+        records = Attendance.objects.filter(
+            user=user,
+            punch_in_date__range=[from_date.date(), to_date.date()]
+        ).select_related('user')
+    else:
+        today = date.today()
+        start_date = today - timedelta(days=30)
+        records = Attendance.objects.filter(
+            user=user,
+            punch_in_date__range=[start_date, today]
+        ).select_related('user')
+
+    context = {
+        'user': user,
+        'attendance_records': records,
+        'from_date': from_date,
+        'to_date': to_date,
+    }
+
+    return render(request, "attendance/admin/attendance_history.html", context)
+
+
 
 
 @login_required
