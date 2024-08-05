@@ -1,42 +1,38 @@
 {% extends "shared/base.html" %}
-{% block content%}
+{% block content %}
 
-
- <div class="row mt-5">
+<div class="row mt-5">
     <div class="col-12">
        <div class="card mb-4">
           <div class="card-header pb-0">
             <div class="row">
                 <div class="col-md-8 col-xs-12"> 
-                    <h6>Today's Summary</h6>
+                    <h6>Attendance History</h6>
                 </div>
-                <div class="col-4">
-                    <form method="get" action="{% url 'index' %}">
-                       <div class="row">
-                            <div class="col-md-8">
-                                <input type="text" name="date" class="form-control date" id="date" 
-                                        placeholder="Please Select Date" 
-                                        value="{{ single_date }}">
-                            </div>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                       </div>
-                   </form>                
-                </div>
-            </div>
-          </div>
+          <div class="col-4">
+            <form method="get" action="{% url 'attendance_history' user_id=user.id %}">
+               <div class="row">
+                    <div class="col-md-8">
+                        <input type="text" name="date_range" class="form-control datepicker" id="datepicker" 
+                                placeholder="Select Date Range" 
+                                value="{{ date_range }}">
+                         
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+               </div>
+           </form>                
+        </div>
           <div class="card-body px-0 pt-0 pb-2">
              <div class="table-responsive p-0">
                 <table class="table align-items-center mb-0">
                    <thead>
                       <tr>
                          <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
-                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ">User</th>
                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ">Punch In</th>
                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Punch Out</th>
                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notes</th>
-                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">History</th> 
                       </tr>
                    </thead>
                    <tbody>
@@ -46,25 +42,23 @@
                              <div class="d-flex px-2 py-1">
                                  <div class="d-flex flex-column justify-content-center">
                                      <h6 class="mb-0 text-sm">
-                                         {% if record.attendance %}
-                                             {{ record.attendance.punch_in_date }}
-                                         {% else %}
-                                             No Record
-                                         {% endif %}
+                                         {{ record.punch_in_date }}
                                      </h6>
                                  </div>
                              </div>
                          </td>
                          <td class="align-middle text-center">
                              <p class="text-xs font-weight-bold mb-0">
-                                 <span class="mb-0 text-sm" style="font-size: 14px;">{{ record.user.get_full_name }}</span>
+                                 <span class="badge badge-sm bg-gradient-success" style="font-size: 14px;">
+                                     {{ record.punch_in_time }}
+                                 </span>
                              </p>
                          </td>
                          <td class="align-middle text-center">
                              <p class="text-xs font-weight-bold mb-0">
-                                 {% if record.attendance %}
-                                     <span class="badge badge-sm bg-gradient-success" style="font-size: 14px;">
-                                         {{ record.attendance.punch_in_time|date:"h:i A"}}
+                                 {% if record.punch_out_time %}
+                                     <span class="badge badge-sm bg-gradient-danger" style="font-size: 14px;">
+                                         {{ record.punch_out_time }}
                                      </span>
                                  {% else %}
                                      No Record
@@ -72,32 +66,14 @@
                              </p>
                          </td>
                          <td class="align-middle text-center">
-                             <p class="text-xs font-weight-bold mb-0">
-                                 {% if record.attendance %}
-                                     <span class="badge badge-sm bg-gradient-danger" style="font-size: 14px;">
-                                        {{ record.attendance.punch_out_time|date:"h:i A" }}
-                                    </span>
-                                 {% else %}
-                                     No Record
-                                 {% endif %}
-                             </p>
-                         </td>
-                         <td class="align-middle text-center">
                              <span class="text-secondary text-xs font-weight-bold" style="font-size: 14px !important;">
-                                 {% if record.attendance %}
-                                     {{ record.attendance.notes }}
-                                 {% else %}
-                                     No Record
-                                 {% endif %}
+                                 {{ record.notes }}
                              </span>
                          </td>
-                         <td class="align-middle text-center">
-                            <a href="{% url 'attendance_history' user_id=record.user.id %}" class="badge badge-sm bg-info">Attendance History</a>
-                        </td>
                      </tr>
                      {% empty %}
                      <tr>
-                         <td colspan="5" class="text-center text-secondary text-xs font-weight-bold">No records available</td>
+                         <td colspan="4" class="text-center text-secondary text-xs font-weight-bold">No records available</td>
                      </tr>
                      {% endfor %}
                  </tbody>                 
@@ -112,8 +88,6 @@
 
 {% block scripts %}
  <script>
-     const myInput = document.querySelector(".date");
-     const fp = flatpickr(myInput, {mode: "single"});
     $(document).ready(function () {
         $('#dateRange').datepicker({
             format: 'yyyy-mm-dd',
