@@ -46,7 +46,7 @@
                                  <div class="d-flex flex-column justify-content-center">
                                      <h6 class="mb-0 text-sm">
                                          {% if record.attendance %}
-                                             {{ record.attendance.punch_in_date }}
+                                             {{ record.attendance.punch_in_date|date:"M j, Y" }}
                                          {% else %}
                                              No Record
                                          {% endif %}
