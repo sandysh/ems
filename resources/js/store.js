@@ -11,6 +11,12 @@ export const metricStore = reactive({
     showEditMetricForm: false,
 })
 
+export const projectStore = reactive({
+    showProjectForm: false,
+    showEditProjectForm: false,
+    showAddStatusForm: false,
+})
+
 export const snackBarStore = reactive({
     snackbarMessage: '',
 })
@@ -42,3 +48,5 @@ export const failedMessage = function(msg){
     timer: 1500
     });
 }
+
+export const stausStore = reactive({list: {}})
