@@ -13,7 +13,7 @@
                     <p>Are you sure, you want to delete <span class="text-danger text-bold">{{ props.data.label }}</span> ?</p>
                 </div>
                 <div class="modal-footer">
-                    <button @click="store.showDeleteForm=false" type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
+                    <button @click="deleteFormStore.showDeleteForm=false" type="button" class="btn bg-gradient-secondary" data-bs-dismiss="modal">Close</button>
                     <button @click="destroy" type="button" class="btn bg-gradient-danger">Delete</button>
                 </div>
             </div>

@@ -38,7 +38,9 @@ import UserSummary from './components/attendance/UserSummary.vue';
 import LeavesIndex from './components/leaves/LeavesIndex.vue';
 import AdminLeavesIndex from './components/leaves/AdminLeavesIndex.vue';
 import DashStats from './components/dashboard/DashStats.vue';
-import DashPoints from './components/dashboard/PointsTable.vue'
+import DashPoints from './components/dashboard/PointsTable.vue';
+import ProjectIndex from './components/project/index.vue';
+import TaskIndex from './components/task/index.vue';
 
 const app = createApp({
     components:{
@@ -50,7 +52,9 @@ const app = createApp({
         LeavesIndex,
         AdminLeavesIndex,
         DashStats,
-        DashPoints
+        DashPoints,
+        ProjectIndex,
+        TaskIndex
     },
     data() {
         return {

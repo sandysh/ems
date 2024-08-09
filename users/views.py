@@ -136,3 +136,10 @@ def updateUserPassword(request, user_id):
     user = User.objects.filter(id=user_id).update(password=make_password(data['new_password']))
     return JsonResponse({"status": 'success'}, safe=False)
 
+
+@login_required
+@require_http_methods(['GET'])
+def all_users(request):
+    users = User.objects.all().order_by('-id')
+    data = [{'id': user.id, 'username': user.username} for user in users]
+    return JsonResponse(data, safe=False)
