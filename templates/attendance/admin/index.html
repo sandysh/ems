@@ -8,15 +8,15 @@
           <div class="card-header pb-0">
             <div class="row">
                 <div class="col-md-8 col-xs-12"> 
-                    <h6>Attendance History</h6>
+                    <h6>Today's Summary</h6>
                 </div>
                 <div class="col-4">
                     <form method="get" action="{% url 'index' %}">
                        <div class="row">
                             <div class="col-md-8">
-                                <input type="text" name="date_range" class="form-control datepicker" id="dateRange"
+                                <input type="text" name="date" class="form-control date" id="date" 
                                         placeholder="Please Select Date" 
-                                        value="{{ date_range }}">
+                                        value="{{ single_date }}">
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -36,6 +36,7 @@
                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ">Punch In</th>
                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Punch Out</th>
                          <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Notes</th>
+                         <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">History</th> 
                       </tr>
                    </thead>
                    <tbody>
@@ -63,7 +64,7 @@
                              <p class="text-xs font-weight-bold mb-0">
                                  {% if record.attendance %}
                                      <span class="badge badge-sm bg-gradient-success" style="font-size: 14px;">
-                                         {{ record.attendance.punch_in_time }}
+                                         {{ record.attendance.punch_in_time|date:"h:i A"}}
                                      </span>
                                  {% else %}
                                      No Record
@@ -74,8 +75,8 @@
                              <p class="text-xs font-weight-bold mb-0">
                                  {% if record.attendance %}
                                      <span class="badge badge-sm bg-gradient-danger" style="font-size: 14px;">
-                                         {{ record.attendance.punch_out_time }}
-                                     </span>
+                                        {{ record.attendance.punch_out_time|date:"h:i A" }}
+                                    </span>
                                  {% else %}
                                      No Record
                                  {% endif %}
@@ -90,6 +91,9 @@
                                  {% endif %}
                              </span>
                          </td>
+                         <td class="align-middle text-center">
+                            <a href="{% url 'attendance_history' user_id=record.user.id %}" class="badge badge-sm bg-info">Attendance History</a>
+                        </td>
                      </tr>
                      {% empty %}
                      <tr>
@@ -104,8 +108,12 @@
     </div>
  </div>
 
+{% endblock %}
 
+{% block scripts %}
  <script>
+     const myInput = document.querySelector(".date");
+     const fp = flatpickr(myInput, {mode: "single"});
     $(document).ready(function () {
         $('#dateRange').datepicker({
             format: 'yyyy-mm-dd',
@@ -126,10 +134,4 @@
         });
     });
     </script>
-
-
-
-
-
-
-{% endblock %}
+{% endblock%}

@@ -1,32 +1,48 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from attendance.models import Attendance
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from helpers.general import dateMaker
+
+
+def dateMaker(range):
+    fromDate = None
+    toDate = None
+    if "to" in range:
+        range = range.split(" to ")
+        date_format = '%Y-%m-%d'
+        fromDate = datetime.strptime(range[0], date_format)
+        toDate = datetime.strptime(range[1], date_format)
+
+    else:
+        date_format = '%Y-%m-%d'
+        fromDate = datetime.strptime(range, date_format)
+        toDate = fromDate 
+    return [fromDate, toDate]
+
+
 
 @login_required
 def index(request):
-    allAttendance = []
     attendance = None
     buttonText = ''
     
-    date_range = request.GET.get('date_range', '')
-    from_date = None
-    to_date = None
+    single_date = request.GET.get('date', '')
 
-    if date_range:
+    if single_date:
         try:
-            from_date, to_date = dateMaker(date_range)
+            date_filter = datetime.strptime(single_date, "%Y-%m-%d").date()
         except ValueError:
-            print("Invalid date range format.")
-            from_date = to_date = None
+            print("Invalid date format.")
+            date_filter = date.today()
+    else:
+        date_filter = date.today()
 
     try:
-        attendance = Attendance.objects.filter(punch_in_date=date.today(), user_id=request.user.id).first()
+        attendance = Attendance.objects.filter(punch_in_date=date_filter, user_id=request.user.id).first()
     except Exception as e:
         print(f"An exception occurred: {e}")
 
@@ -34,14 +50,9 @@ def index(request):
 
     users = User.objects.all()
 
-    attendance_records = []
+    records = Attendance.objects.filter(punch_in_date=date_filter).select_related('user')
 
-    if from_date and to_date:
-        records = Attendance.objects.filter(
-            punch_in_date__range=[from_date.date(), to_date.date()]
-        ).select_related('user')
-    else:
-        records = Attendance.objects.filter(punch_in_date=date.today()).select_related('user')
+    attendance_records = []
     for user in users:
         user_record = {
             'user': user,
@@ -55,14 +66,84 @@ def index(request):
         'today': date.today(),
         'now': datetime.now().strftime("%I:%M %p"),
         'attendance': attendance,
-        'allAttendance': allAttendance,
         'buttonText': buttonText,
-        'date_range': date_range,
+        'single_date': single_date,
     }
 
     template = "attendance/admin/index.html" if request.user.is_superuser else "attendance/user/index.html"
 
     return render(request, template, context)
+
+
+@login_required
+def attendance_history(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    date_range = request.GET.get('date_range', '')
+    from_date = None
+    to_date = None
+
+    if from_date and to_date:
+        records = Attendance.objects.filter(
+            user=user,
+            punch_in_date__range=[from_date.date(), to_date.date()]
+        ).select_related('user')
+    else:
+        today = date.today()
+        start_date = today - timedelta(days=30)
+        records = Attendance.objects.filter(
+            user=user,
+            punch_in_date__range=[start_date, today]
+        ).select_related('user')
+
+    context = {
+        'user': user,
+        'attendance_records': records,
+        'from_date': from_date,
+        'to_date': to_date,
+    }
+
+    return render(request, "attendance/admin/attendance_history.html", context)
+
+
+
+
+@login_required
+def attendance_history(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    date_range = request.GET.get('date_range', '')
+    from_date = None
+    to_date = None
+
+    if date_range:
+        try:
+            from_date, to_date = dateMaker(date_range)
+        except ValueError:
+            print("Invalid date range format.")
+            from_date = to_date = None
+
+    if from_date and to_date:
+        records = Attendance.objects.filter(
+            user=user,
+            punch_in_date__range=[from_date.date(), to_date.date()]
+        ).select_related('user')
+    else:
+        today = date.today()
+        start_date = today - timedelta(days=30)
+        records = Attendance.objects.filter(
+            user=user,
+            punch_in_date__range=[start_date, today]
+        ).select_related('user')
+
+    context = {
+        'user': user,
+        'attendance_records': records,
+        'from_date': from_date,
+        'to_date': to_date,
+    }
+
+    return render(request, "attendance/admin/attendance_history.html", context)
+
+
 
 
 
