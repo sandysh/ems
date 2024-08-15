@@ -6,23 +6,7 @@ from attendance.models import Attendance
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-
-
-def dateMaker(range):
-    fromDate = None
-    toDate = None
-    if "to" in range:
-        range = range.split(" to ")
-        date_format = '%Y-%m-%d'
-        fromDate = datetime.strptime(range[0], date_format)
-        toDate = datetime.strptime(range[1], date_format)
-
-    else:
-        date_format = '%Y-%m-%d'
-        fromDate = datetime.strptime(range, date_format)
-        toDate = fromDate 
-    return [fromDate, toDate]
-
+from helpers.general import dateMaker
 
 @login_required
 def index(request):
@@ -58,7 +42,6 @@ def index(request):
         ).select_related('user')
     else:
         records = Attendance.objects.filter(punch_in_date=date.today()).select_related('user')
-
     for user in users:
         user_record = {
             'user': user,
