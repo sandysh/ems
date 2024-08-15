@@ -30,6 +30,8 @@ urlpatterns = [
     path('leaves/',include("leaves.urls")),
     path('profile/',include("userprofile.urls")),
     path('roles/',include("roles.urls")),
+    path('project/', include("project.urls")),
+    path('task/',include("task.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

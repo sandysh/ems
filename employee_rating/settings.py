@@ -66,6 +66,8 @@ INSTALLED_APPS = [
     'controller.apps.ControllerConfig',
     'dashboard.apps.DashboardConfig',
     'userprofile.apps.UserprofileConfig',
+    'project.apps.ProjectConfig',
+    'task.apps.TaskConfig',
     'rest_framework',
 ]
 
