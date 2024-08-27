@@ -23,3 +23,8 @@ EXPOSE 8000
 # Run the Django development server
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "employee_rating.wsgi:application"]
 
+RUN apt -y update
+RUN apt install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
+RUN apt install -y nodejs
+RUN apt install -y npm

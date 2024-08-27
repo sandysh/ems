@@ -1,4 +1,4 @@
-version: '3'
+#version: '3.9'
 
 services:
   web:
@@ -38,7 +38,6 @@ services:
     depends_on:
       - db
       - redis
-
 #  celerybeat:
 #    build: .
 #    command: celery -A employee_rating beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler

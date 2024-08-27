@@ -16,30 +16,35 @@
               </div>
               <div class="card-body">
                 <form action="" method="post" autocomplete="false">
-                  <div class="card-body px-0 pt-0 pb-2">
-                    <div class="form-group">
-                      <label for="first name" class="form-control-label">Name</label>
-                      <input v-model="projectStore.projectData.name" name="name" class="form-control" type="text" value=""
-                             id="first-name" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="score" class="form-control-label">Description</label>
-                      <input v-model="projectStore.projectData.description" name="description" class="form-control" type="text" value=""
-                             id="score" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="status" class="form-control-label">Status</label>
-                      <input v-model="projectStore.projectData.status" name="description" class="form-control" type="text" value=""
-                             id="status" required>
-                    </div>
+                  <div class="row">
+                    <div class="card-body px-0 pt-0 pb-2">
+                      <div class="form-group">
+                        <label for="first name" class="form-control-label">Name</label>
+                        <input v-model="projectStore.projectData.name" name="name" class="form-control" type="text" value=""
+                               id="first-name" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="score" class="form-control-label">Description</label>
+                        <input v-model="projectStore.projectData.description" name="description" class="form-control" type="text" value=""
+                               id="score" required>
+                      </div>
+                      <div class="form-group">
+                        <label for="status" class="form-control-label">Add different status for this project</label>
+                        <div class="d-flex flex-row">
+                          <input v-model="projectStore.projectData.status" name="description" class="form-control" type="text" value=""
+                                 id="status" required>
+                          <button class="btn btn-primary"><i class="fa fa-plus-circle"></i></button>
+                        </div>
+                      </div>
 
-                    <div class="d-flex justify-content-end">
-                      <button @click.prevent="projectStore.submitNewProject" type="button"
-                              class="btn btn-round bg-gradient-info w-20 mt-4 mb-0">Create
-                      </button>
-                      <button @click.prevent="projectStore.cancelNewProject" type="button"
-                              class="btn btn-round bg-gradient-danger w-20 mt-4 mb-0">Cancel
-                      </button>
+                      <div class="d-flex justify-content-end">
+                        <button @click.prevent="projectStore.submitNewProject" type="button"
+                                class="btn btn-round bg-gradient-info w-20 mt-4 mb-0">Create
+                        </button>
+                        <button @click.prevent="projectStore.cancelNewProject" type="button"
+                                class="btn btn-round bg-gradient-danger w-20 mt-4 mb-0">Cancel
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </form>
