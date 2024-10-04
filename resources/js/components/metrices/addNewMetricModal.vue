@@ -61,6 +61,12 @@
         is_active: true
     })
 
+    function clearForm()
+    {
+      data.name = ''
+      data.score = ''
+    }
+
     async function submit() {
         errorsStore.list = {}
         errorsStore.show = false
@@ -68,6 +74,7 @@
         response = await post('store',data);
         if (response.status === 200) {
             metricStore.showAddMetricForm = false
+            clearForm()
             emit('refresh-table')
         } else {
             errorsStore.list = response.data

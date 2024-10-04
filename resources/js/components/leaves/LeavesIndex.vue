@@ -175,7 +175,6 @@
         <Transition>
             <add-edit-leaves v-if="leavesStore.showLeavesForm"></add-edit-leaves>
         </Transition>
-        <snack-bar v-show="snackBarStore.snackbarMessage!==''"></snack-bar>
     </div>
 
 </template>
