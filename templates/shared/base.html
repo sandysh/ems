@@ -218,6 +218,21 @@
       Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
     }
   </script>
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "6e9c21dc-16fd-43fc-a146-04b74e7a5324",
+      safari_web_id: "web.onesignal.auto.1b5ff574-1f63-4acf-ab26-dadb313db610",
+      notifyButton: {
+        enable: true,
+      },
+    });
+  });
+</script>
+
 </body>
 
 </html>
