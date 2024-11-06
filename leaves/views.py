@@ -28,9 +28,10 @@ def store(request):
     leave = json.loads(request.body)
     dateRange = leave['leave_date_range'].split(" to ")
     leaves = (Leaves.objects.filter(from_date__gte=dateRange[0], to_date__lte=dateRange[1])
-              .exclude(status='APPROVED')
-              .exclude(status='PENDING')
+              .exclude(status='REJECTED')
+              .exclude(status='CANCELLED')
               .order_by('-id').values())
+
     if leaves:
         return JsonResponse({'error':'You already have leaves either pending or approved for the applied dates'},status=422, safe=False)
     # from_date = date_splitter(dateRange[0])
