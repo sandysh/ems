@@ -72,6 +72,7 @@ export async function notify() {
             "app_id": "567b4ce3-247b-45cf-8999-a943c6a55897",
             "target_channel": "push",
             "contents": {"en": "English Message", "es": "Spanish Message"},
+            "included_segments": ["All"]
         }
     })
     // axios.defaults.baseURL = 'https://api.onesignal.com/notifications';
