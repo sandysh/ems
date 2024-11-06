@@ -66,7 +66,8 @@ export async function notify() {
         method: "POST",
         headers: {
             "Authorization": 'Basic MDQ5M2E4MjktOGEwNC00Mzg0LTlkNjQtMDBiNzUwOTE5Zjdk',
-            "Access-Control-Allow-Origin": 'https://darkmattergame.net'
+            "accept": 'application/json',
+            "content-type":'application/json'
         },
         body: {
             "app_id": "567b4ce3-247b-45cf-8999-a943c6a55897",
