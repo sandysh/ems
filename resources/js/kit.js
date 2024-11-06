@@ -67,6 +67,7 @@ export async function notify() {
         mode: 'no-cors',
         headers: {
             "Authorization": 'Basic MDQ5M2E4MjktOGEwNC00Mzg0LTlkNjQtMDBiNzUwOTE5Zjdk',
+            "Access-Control-Allow-Origin": 'https://hrm.darkmattergame.net',
             "accept": 'application/json',
             "content-type":'application/json'
         },
