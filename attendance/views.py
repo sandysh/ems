@@ -153,7 +153,7 @@ def punch(request):
     newData = {}
     notes = request.POST.get('notes')
     today = date.today()
-    now = datetime.now().strftime("%I:%M")
+    now = datetime.now().strftime("%H:%M")
     try:
         attendance = Attendance.objects.filter(punch_in_date=date.today()).filter(user=request.user)
     except:

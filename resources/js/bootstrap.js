@@ -1,5 +1,4 @@
 window._ = require('lodash');
-
 // try {
 //     require('bootstrap');
 // } catch (e) {}
@@ -36,6 +35,8 @@ window.axios.defaults.headers.common['Cache-Control'] = 'no-store'
  * allows your team to easily build robust real-time web applications.
  */
 
+window.oneSignalAppID = process.env.MIX_ONESIGNAL_APP_ID
+window.sandesh=process.env
 // import Echo from 'laravel-echo';
 
 // window.Pusher = require('pusher-js');
