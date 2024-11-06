@@ -82,6 +82,7 @@ export async function notify() {
     axios.defaults.headers.common['Authorization'] = 'Basic MDQ5M2E4MjktOGEwNC00Mzg0LTlkNjQtMDBiNzUwOTE5Zjdk';
     axios.defaults.headers.post['Content-Type'] = 'application/json';
     axios.defaults.headers.post['Accept'] = 'application/json';
+    delete axios.defaults.headers.common['X-CSRFTOKEN'];
     return axios.post('',{
       "app_id": "567b4ce3-247b-45cf-8999-a943c6a55897",
       "target_channel": "push",
