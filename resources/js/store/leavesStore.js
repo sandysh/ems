@@ -23,17 +23,17 @@ export const leavesStore = reactive({
     },
 
     async getMyLeaves() {
-        let response = await post(`/leaves/all?page=${this.current_page}`, this.filter)
+        let response = await post(`all?page=${this.current_page}`, this.filter)
         this.list = response.data.data
         this.pagination = response.data.pagination
     },
     async getStats(){
-        let response = await post(`/leaves/stats`, this.filter)
+        let response = await post(`stats`, this.filter)
         console.log('stats', response.data)
         this.stats = response.data
     },
     async updateStatus(leave) {
-        let response = await put(`/leaves/${leave.id}/update/status`, {status:leave.status})
+        let response = await put(`${leave.id}/update/status`, {status:leave.status})
         if (response.data.status === 'success'){
             successMessage(response.data.message)
         }

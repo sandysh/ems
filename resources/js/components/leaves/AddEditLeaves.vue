@@ -68,9 +68,9 @@ async function submit() {
             "leave_date_range": '',
             "reason": '',
         }
-        notify()
         leavesStore.getMyLeaves()
         leavesStore.getStats()
+        notify()
     }
 }
 
