@@ -43,14 +43,14 @@
                                                 id="example-password-input">
                                         </div>
                                         <div class="form-check form-switch pb-2">
-                                            <input v-model="data.list.is_superuser" name="is_admin" class="form-check-input" type="checkbox"
-                                                id="flexSwitchCheckDefault">
+                                            <input v-model="data.list.is_superuser" name="is_superuser" class="form-check-input" type="checkbox"
+                                                id="is_superuser">
                                             <label class="form-check-label" for="flexSwitchCheckDefault">Admin</label>
                                         </div>
                                         <div class="form-check form-switch">
                                             <input v-model="data.list.is_active" name="is_active" class="form-check-input" type="checkbox"
-                                                id="flexSwitchCheckDefault" checked="">
-                                            <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
+                                                id="is_active" checked="">
+                                            <label class="form-check-label" for="flexSwitchCheckDefault1">Active</label>
                                         </div>
                                         
                                         <div class="d-flex justify-content-end">
@@ -74,7 +74,15 @@
     import { onMounted, reactive, ref } from 'vue';
     import { userStore, errorsStore } from '../../store';
     const emit = defineEmits(['refresh-table'])
-    const data = reactive({list:{}})
+    const data = reactive({list:{
+        firstname: "",
+        lastname: "",
+        email: "",
+        username: "",
+        password: "",
+        is_superuser: false,
+        is_active: true
+      }})
 
     function submit() {
         errorsStore.list = {}

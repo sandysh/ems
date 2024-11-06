@@ -117,7 +117,7 @@
                             </div>
                             <div class="col-2">
                                 <div class="form-group">
-                                  <select v-model="leavesStore.filter.status" class="form-control" id="exampleFormControlSelect1">
+                                  <select v-model="leavesStore.filter.status" class="form-select" id="exampleFormControlSelect1">
                                     <option value="all">All</option>
                                     <option value="APPROVED">Approved</option>
                                     <option value="PENDING">Pending</option>
@@ -154,7 +154,7 @@
                                     <td>
                                         <div class="d-flex px-2">
                                           <div class="my-auto">
-                                              <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type }}</h6>
+                                              <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type.name }}</h6>
                                           </div>
                                         </div>
                                     </td>
@@ -168,7 +168,7 @@
                                         <span class="text-sm font-weight-bold">{{ leave.reason }}</span>
                                     </td>
                                     <td>
-                                        <select v-if="leave.status !== 'CANCELLED'" v-model="leave.status" @change="updateStatus(leave)" class="form-control" id="exampleFormControlSelect1">
+                                        <select v-if="leave.status !== 'CANCELLED'" v-model="leave.status" @change="updateStatus(leave)" class="form-select" id="exampleFormControlSelect1">
                                           <option value="APPROVED">Approved</option>
                                           <option value="PENDING">Pending</option>
                                           <option value="REJECTED">Rejected</option>

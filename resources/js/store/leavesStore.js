@@ -1,4 +1,4 @@
-import {reactive} from "vue";
+import {reactive, watch} from "vue";
 import {post, put} from "../kit";
 import {successMessage, failedMessage} from "../store";
 import {errorsStore} from "./errorStore";
@@ -9,7 +9,7 @@ export const leavesStore = reactive({
     pagination: {},
     current_page: 1,
     form: {
-        "leave_type": '',
+        "leave_type": 1,
         "leave_date_range": '',
         "reason": '',
     },
@@ -21,6 +21,7 @@ export const leavesStore = reactive({
         list:{},
         status: ''
     },
+
     async getMyLeaves() {
         let response = await post(`all?page=${this.current_page}`, this.filter)
         this.list = response.data.data

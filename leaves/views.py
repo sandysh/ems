@@ -1,20 +1,22 @@
 import json
-from datetime import date, datetime
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+from pendulum import datetime
+
 from leaves.models import Leaves
 from django_easy_validation import Validator
-from helpers.general import is_ajax
+from helpers.general import is_ajax, serialize_data
 from leaves.rules.leaves_rules import LeavesRules
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from helpers.general import make_pagination, make_serialized_pagination, dateMaker
-
+from helpers.general import make_pagination, make_serialized_pagination, dateMaker, date_list_from_date_range, date_splitter
+from leaves_types.models import LeavesTypes
+from serializers.leaves_serializers import LeavesSerializer
+from array import array
 
 def index(request):
     return render(request, "leaves/index.html")
-
 
 @never_cache
 @require_http_methods('POST')
@@ -25,9 +27,25 @@ def store(request):
         return JsonResponse(errors, status=422, safe=False)
     leave = json.loads(request.body)
     dateRange = leave['leave_date_range'].split(" to ")
+    leaves = Leaves.objects.filter(from_date__gte=dateRange[0], to_date__lte=dateRange[1] ).order_by('-id').values()
+    if leaves:
+        return JsonResponse({'error':'You already have leaves either pending or approved for the applied dates'},status=422, safe=False)
+    # from_date = date_splitter(dateRange[0])
+    # to_date = date_splitter(dateRange[1])
+    # dates_list = date_list_from_date_range(datetime(from_date['year'],from_date['month'],from_date['day']), datetime(to_date['year'],to_date['month'],to_date['day']))
+
+    return JsonResponse(list(leaves), safe=False)
+
+    available = check_if_leaves_are_available(request,leave)
+    if not available:
+        return JsonResponse({'error': 'You have already applied for these dates'}, status=422, safe=False)
+    leave_type = LeavesTypes.objects.get(id=leave['leave_type'])
+    total_leaves_taken = Leaves.objects.filter(user_id=request.user.id,status='APPROVED').count()
+    if total_leaves_taken >= leave_type.days:
+        return JsonResponse({'error':'You cannot apply to more ' + leave_type.name + ' leave than you have been alloted'}, status=422, safe=False)
     newData = {
         "user": request.user,
-        "leave_type": leave['leave_type'],
+        "leave_type_id": leave['leave_type'],
         "from_date": dateRange[0],
         "to_date": dateRange[1],
         "reason": leave['reason'],
@@ -35,6 +53,8 @@ def store(request):
     Leaves.objects.create(**newData)
     return JsonResponse('success', safe=False)
 
+def check_if_leaves_are_available(request, leave):
+    return Leaves.objects.filter(user_id=request.user.id, status='APPROVED').values()
 
 @never_cache
 def all(request):
@@ -44,16 +64,14 @@ def all(request):
         range = dateMaker(body['range'])
         if range[0] and range[1]:
             if request.user.is_superuser:
-                leaves = Leaves.objects.filter(from_date__gte=range[0],
-                                               to_date__lte=range[1]).order_by('-id')
+                leaves = Leaves.objects.filter(created_at__date__range=[range[0],range[1]]).order_by('-id')
             else:
-                leaves = Leaves.objects.filter(user_id=request.user.id, from_date__gte=range[0],
-                                               to_date__lte=range[1]).order_by('-id')
+                leaves = Leaves.objects.filter(user_id=request.user.id, created_at__date__range=[range[0],range[1]]).order_by('-id')
         else:
             if request.user.is_superuser:
-                leaves = Leaves.objects.filter(from_date=range[0]).order_by('-id')
+                leaves = Leaves.objects.filter(created_at__date=range[0]).order_by('-id')
             else:
-                leaves = Leaves.objects.filter(user_id=request.user.id, from_date=range[0]).order_by('-id')
+                leaves = Leaves.objects.filter(user_id=request.user.id,created_at__date=range[0]).order_by('-id')
     else:
         if request.user.is_superuser:
             leaves = Leaves.objects.order_by('-id')
@@ -62,7 +80,7 @@ def all(request):
 
     if body['status'] != "all":
         leaves = leaves.filter(status=body['status'])
-    paginated_data = make_serialized_pagination(request, leaves)
+    paginated_data = make_serialized_pagination(request, leaves, LeavesSerializer)
     return JsonResponse(paginated_data, safe=False)
 
 
@@ -93,72 +111,51 @@ def updateStatus(request, leave_id):
 @require_http_methods('POST')
 def stats(request):
     body = json.loads(request.body)
+    generalLeaves = LeavesTypes.objects.filter(type='general').values()
     stats = {
         "total_leaves_applied": 0,
         "total_leaves_pending": 0,
         "total_leaves_approved": 0,
         "total_leaves_rejected": 0,
+        "general": {
+
+        }
     }
-    if body['range'] != "":
-        range = dateMaker(body['range'])
-        if range[0] and range[1]:
-            if request.user.is_superuser:
-                stats["total_leaves_applied"] = Leaves.objects.filter(from_date__gte=range[0],
-                                                                      to_date__lte=range[1]).order_by('-id').count()
-                stats["total_leaves_pending"] = Leaves.objects.filter(from_date__gte=range[0],
-                                                                      to_date__lte=range[1]).filter(
-                    status='PENDING').order_by('-id').count()
-                stats["total_leaves_approved"] = Leaves.objects.filter(from_date__gte=range[0],
-                                                                       to_date__lte=range[1]).filter(
-                    status='APPROVED').order_by('-id').count()
-                stats["total_leaves_rejected"] = Leaves.objects.filter(from_date__gte=range[0],
-                                                                       to_date__lte=range[1]).filter(
-                    status='REJECTED').order_by('-id').count()
-            else:
-                stats["total_leaves_applied"] = Leaves.objects.filter(user_id=request.user.id, from_date__gte=range[0],
-                                                                      to_date__lte=range[1]).order_by('-id').count()
-                stats["total_leaves_pending"] = Leaves.objects.filter(user_id=request.user.id, from_date__gte=range[0],
-                                                                      to_date__lte=range[1]).filter(
-                    status='PENDING').order_by('-id').count()
-                stats["total_leaves_approved"] = Leaves.objects.filter(user_id=request.user.id, from_date__gte=range[0],
-                                                                       to_date__lte=range[1]).filter(
-                    status='APPROVED').order_by('-id').count()
-                stats["total_leaves_rejected"] = Leaves.objects.filter(user_id=request.user.id, from_date__gte=range[0],
-                                                                       to_date__lte=range[1]).filter(
-                    status='REJECTED').order_by('-id').count()
-        else:
-            if request.user.is_superuser:
-                stats["total_leaves_applied"] = Leaves.objects.filter(from_date=range[0]).order_by('-id').count()
-                stats["total_leaves_pending"] = Leaves.objects.filter(from_date=range[0]).filter(
-                    status='PENDING').order_by('-id').count()
-                stats["total_leaves_approved"] = Leaves.objects.filter(from_date=range[0]).filter(
-                    status='APPROVED').order_by('-id').count()
-                stats["total_leaves_rejected"] = Leaves.objects.filter(from_date=range[0]).filter(
-                    status='REJECTED').order_by('-id').count()
-            else:
-                stats["total_leaves_applied"] = Leaves.objects.filter(user_id=request.user.id,
-                                                                      from_date=range[0]).order_by('-id').count()
-                stats["total_leaves_pending"] = Leaves.objects.filter(user_id=request.user.id,
-                                                                      from_date=range[0]).filter(
-                    status='PENDING').order_by('-id').count()
-                stats["total_leaves_approved"] = Leaves.objects.filter(user_id=request.user.id,
-                                                                       from_date=range[0]).filter(
-                    status='APPROVED').order_by('-id').count()
-                stats["total_leaves_rejected"] = Leaves.objects.filter(user_id=request.user.id,
-                                                                       from_date=range[0]).filter(
-                    status='REJECTED').order_by('-id').count()
+
+    if request.user.is_superuser:
+        for i, l in enumerate(generalLeaves):
+            name = l['name']
+            stats['general'][i] = {
+                "name": name,
+                "approved": Leaves.objects.filter(
+                    status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count(),
+                "total": l['days']
+            }
+            # stats['general'][name] = Leaves.objects.filter(user=request.user).filter(
+            #     status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count()
+        stats["total_leaves_applied"] = Leaves.objects.order_by('-id').count()
+        stats["total_leaves_pending"] = Leaves.objects.filter(status='PENDING').order_by(
+            '-id').count()
+        stats["total_leaves_approved"] = Leaves.objects.filter(
+            status='APPROVED').order_by('-id').count()
+        stats["total_leaves_rejected"] = Leaves.objects.filter(
+            status='REJECTED').order_by('-id').count()
     else:
-        if request.user.is_superuser:
-            stats["total_leaves_applied"] = Leaves.objects.order_by('-id').count()
-            stats["total_leaves_pending"] = Leaves.objects.filter(status='PENDING').order_by('-id').count()
-            stats["total_leaves_approved"] = Leaves.objects.filter(status='APPROVED').order_by('-id').count()
-            stats["total_leaves_rejected"] = Leaves.objects.filter(status='REJECTED').order_by('-id').count()
-        else:
-            stats["total_leaves_applied"] = Leaves.objects.filter(user=request.user).order_by('-id')
-            stats["total_leaves_pending"] = Leaves.objects.filter(user=request.user).filter(status='PENDING').order_by(
-                '-id').count()
-            stats["total_leaves_approved"] = Leaves.objects.filter(user=request.user).filter(
-                status='APPROVED').order_by('-id').count()
-            stats["total_leaves_rejected"] = Leaves.objects.filter(user=request.user).filter(
-                status='REJECTED').order_by('-id').count()
-    return JsonResponse(stats, safe=False)
+        for i,l in enumerate(generalLeaves):
+            name = l['name']
+            stats['general'][i] = {
+                "name": name,
+                "approved": Leaves.objects.filter(user=request.user).filter(
+                     status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count(),
+                "total": l['days']
+            }
+            # stats['general'][name] = Leaves.objects.filter(user=request.user).filter(
+            #     status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count()
+        stats["total_leaves_applied"] = Leaves.objects.filter(user=request.user).order_by('-id').count()
+        stats["total_leaves_pending"] = Leaves.objects.filter(user=request.user).filter(status='PENDING').order_by(
+            '-id').count()
+        stats["total_leaves_approved"] = Leaves.objects.filter(user=request.user).filter(
+            status='APPROVED').order_by('-id').count()
+        stats["total_leaves_rejected"] = Leaves.objects.filter(user=request.user).filter(
+            status='REJECTED').order_by('-id').count()
+    return JsonResponse(stats,safe=True)

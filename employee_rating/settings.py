@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+
+import leaves_types.apps
+
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,8 +29,8 @@ SECRET_KEY = 'django-insecure-*d2s2ufce#e4c^gm739r^c%f&b6wz#66g0w*t^!8iuse6-$n2e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(",")
-print('ALLOWED',ALLOWED_HOSTS)
-print('DATABASE NAME',os.getenv("DATABASE_NAME"))
+# print('ALLOWED',ALLOWED_HOSTS)
+# print('DATABASE NAME',os.getenv("DATABASE_NAME"))
 CSRF_TRUSTED_ORIGINS = ['https://hrm.ajnaenterprise.com']
 DATABASES = {
     "default": {
@@ -69,6 +72,7 @@ INSTALLED_APPS = [
     'project.apps.ProjectConfig',
     'task.apps.TaskConfig',
     'rest_framework',
+    'leaves_types.apps.LeavesTypesConfig'
 ]
 
 MIDDLEWARE = [

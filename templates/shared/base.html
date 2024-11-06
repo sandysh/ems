@@ -203,7 +203,18 @@
 
   {% block scripts%}
   {% endblock %}
-
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.onesignalAPIURL = "https://onesignal.com/api/v1/notifications";
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+        appId: "567b4ce3-247b-45cf-8999-a943c6a55897",
+        serviceWorkerParam: { scope: "/static/sw/" },
+        serviceWorkerPath: "static/sw/OneSignalSDKWorker.js",
+    });
+  });
+</script>
   <script>
      if (document.querySelector('.datepicker')) {
         flatpickr('.datepicker', {

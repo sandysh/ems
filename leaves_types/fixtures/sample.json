@@ -1,0 +1,112 @@
+[
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 1,
+    "fields": {
+      "name": "Paid",
+      "days": 13,
+      "type": "general",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 2,
+    "fields": {
+      "name": "Sick",
+      "days": 7,
+      "type": "general",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 3,
+    "fields": {
+      "name": "Maternity",
+      "days": 60,
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 4,
+    "fields": {
+      "name": "Paternity",
+      "days": 15,
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 5,
+    "fields": {
+      "name": "Marriage",
+      "days": 7,
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 6,
+    "fields": {
+      "name": "Medical-Emergency",
+      "days": "10",
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 7,
+    "fields": {
+      "name": "Grief-Mourning",
+      "days": 23,
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 8,
+    "fields": {
+      "name": "Study-Exam",
+      "days": 5,
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 9,
+    "fields": {
+      "name": "Training",
+      "days": 15,
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 10,
+    "fields": {
+      "name": "Festive",
+      "days": 1,
+      "type": "special",
+      "status": 1
+    }
+  },
+  {
+    "model": "leaves_types.LeavesTypes",
+    "pk": 11,
+    "fields": {
+      "name": "Pandemic",
+      "days": 4,
+      "type": "special",
+      "status": 1
+    }
+  }
+]

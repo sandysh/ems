@@ -1,5 +1,20 @@
 <template>
     <div id="leaves">
+<!--      <div class="d-flex justify-content-end">-->
+<!--        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">-->
+<!--          <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked>-->
+<!--          <label class="btn btn-outline-primary" for="btnradio1">Today</label>-->
+
+<!--          <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">-->
+<!--          <label class="btn btn-outline-primary" for="btnradio2">Yesterday</label>-->
+
+<!--          <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">-->
+<!--          <label class="btn btn-outline-primary" for="btnradio3">This Month</label>-->
+
+<!--          <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off">-->
+<!--          <label class="btn btn-outline-primary" for="btnradio3">Last Month</label>-->
+<!--        </div>-->
+<!--      </div>-->
         <div class="row mb-3">
             <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
                 <div class="card">
@@ -7,9 +22,9 @@
                         <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Leaves Taken</p>
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Leaves Applied</p>
                                 <h5 class="font-weight-bolder">
-                                    {{ leavesStore.pagination.total }}
+                                    {{ leavesStore.stats.total_leaves_applied }}
                                 </h5>
                                 <!-- <p class="mb-0">
                                     <span class="text-success text-sm font-weight-bolder">+55%</span>
@@ -34,7 +49,7 @@
                             <div class="numbers">
                                 <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Leaves Pending </p>
                                 <h5 class="font-weight-bolder">
-                                    0
+                                    {{ leavesStore.stats.total_leaves_pending }}
                                 </h5>
                                 <!-- <p class="mb-0">
                                     <span class="text-success text-sm font-weight-bolder">+3%</span>
@@ -57,9 +72,9 @@
                         <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Casual Leave Remaining</p>
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Leaves Approved</p>
                                 <h5 class="font-weight-bolder">
-                                    0
+                                    {{ leavesStore.stats.total_leaves_approved }}
                                 </h5>
                                 <!-- <p class="mb-0">
                                     <span class="text-danger text-sm font-weight-bolder">-2%</span>
@@ -82,13 +97,37 @@
                         <div class="row">
                         <div class="col-8">
                             <div class="numbers">
-                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Sick Leave Remaining</p>
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total Leaves Rejected</p>
                                 <h5 class="font-weight-bolder">
-                                    0
+                                    {{ leavesStore.stats.total_leaves_rejected }}
                                 </h5>
                                 <!-- <p class="mb-0">
                                     <span class="text-success text-sm font-weight-bolder">+5%</span> than last month
                                 </p> -->
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                                <i class="ni ni-cart text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-sm-6 mt-3" v-for="(g,i) in leavesStore.stats.general" :key="i">
+                <div class="card">
+                    <div class="card-body p-3">
+                        <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">{{ g.name }} Leaves</p>
+                                <h5 class="font-weight-bolder">
+                                    {{ g.approved }} / {{ g.total }}
+                                </h5>
+                                  <p class="mb-0">
+                                    <span class="text-success text-sm font-weight-bolder">{{g.total-g.approved }}</span> remaining
+                                  </p>
                             </div>
                         </div>
                         <div class="col-4 text-end">
@@ -123,11 +162,12 @@
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Type</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Created At</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">From</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">To</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Reason</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
-                                    <th></th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -135,9 +175,12 @@
                                     <td>
                                         <div class="d-flex px-2">
                                         <div class="my-auto">
-                                            <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type }}</h6>
+                                            <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type.name }}</h6>
                                         </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        <p class="text-sm font-weight-bold mb-0">{{ leave.created_at }}</p>
                                     </td>
                                     <td>
                                         <p class="text-sm font-weight-bold mb-0">{{ leave.from_date }}</p>
@@ -156,12 +199,15 @@
                                     </td>
                                     
                                     <td class="">
-                                        <button @click="edit(leave)" class="btn btn-success btn-xs m-2">
+                                      <span v-if="leave.status==='PENDING'">
+                                         <button @click="edit(leave)" class="btn btn-success btn-xs m-2">
                                             <i class="fa fa-edit"></i>
                                         </button>
                                         <button @click="cancel(leave)" class="btn btn-danger btn-xs m-2" :class="{'disabled': leave.status == 'CANCELLED'}">
                                             <i class="fa fa-close"></i>
                                         </button>
+                                      </span>
+                                       <span v-else>N/A</span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -175,7 +221,6 @@
         <Transition>
             <add-edit-leaves v-if="leavesStore.showLeavesForm"></add-edit-leaves>
         </Transition>
-        <snack-bar v-show="snackBarStore.snackbarMessage!==''"></snack-bar>
     </div>
 
 </template>
@@ -239,6 +284,7 @@ function cancel(leave){
 
 onMounted(() => {
     leavesStore.getMyLeaves()
+    leavesStore.getStats()
 })
 
 </script>

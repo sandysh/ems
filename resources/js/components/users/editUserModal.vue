@@ -43,8 +43,8 @@
                                         </div>
                                         <div class="form-check form-switch">
                                             <input v-model="data.is_active" name="is_active" class="form-check-input" type="checkbox"
-                                                id="flexSwitchCheckDefault" checked="">
-                                            <label class="form-check-label" for="flexSwitchCheckDefault">Active</label>
+                                                id="flexSwitchCheckDefault1" checked="">
+                                            <label class="form-check-label" for="flexSwitchCheckDefault1">Active</label>
                                         </div>
                                         
                                         <div class="d-flex justify-content-end">

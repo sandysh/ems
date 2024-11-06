@@ -1,6 +1,6 @@
 <template>
     <div class="col-md-4">
-            <div class="modal fade show" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true" style="display: block; padding-left: 0px;">
+            <div class="modal fade show" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form" style="display: block; padding-left: 0px;">
             <div class="modal-dialog modal-dialog-centered modal-md" role="document">
                 <div class="modal-content">
                 <div class="modal-body p-0">
@@ -15,14 +15,13 @@
                         <form role="form text-left">
                         <label>Type</label>
                         <div class="input-group mb-3">
-                            <select v-model="leavesStore.form.leave_type" class="form-control" name="leave_type" id="" required>
-                                <option value="CASUAL">Casual</option>
-                                <option value="SICK">Sick</option>
+                            <select v-model="leavesStore.form.leave_type" class="form-select" name="leave_type" id="" required>
+                                <option v-for="(type,t) in leavesTypesStores.list" :value="type.id" :key="t">{{ type.name }}</option>
                             </select>
                         </div>
                         <label>Date</label>
                         <div class="input-group mb-3">
-                            <input required v-model="leavesStore.form.leave_date" class="form-control datepicker" placeholder="Please select date" type="text" onfocus="focused(this)" onfocusout="defocused(this)">
+                            <input required v-model="leavesStore.form.leave_date_range" class="form-control datepicker" placeholder="Please select date" type="text" onfocus="focused(this)" onfocusout="defocused(this)">
                         </div>
                         <label for="reason">Reason</label>
                         <div class="input-group">
@@ -43,15 +42,25 @@
 </template>
 
 <script setup>
-import {onMounted, reactive} from 'vue';
-import { get, post, put } from '../../kit.js';
+import {onMounted,watch} from 'vue';
+import { get, post, put, notify } from '../../kit.js';
 import { leavesStore} from '../../store/leavesStore';
+import { leavesTypesStores } from "../../store/leavesTypesStore";
 import {errorsStore} from "../../store/errorStore";
 import { successMessage } from "../../store/messageStore";
+import moment from "moment";
+
+watch(leavesStore.form, async() => {
+    let date_range = leavesStore.form.leave_date_range.split('to')
+    let date1 = moment(date_range[0])
+    let date2 = moment(date_range[1])
+    let diffDays = date2.diff(date1, 'days');
+    console.log(diffDays)
+})
 
 async function submit() {
     let response = await post('store',leavesStore.form)
-    if (response.data == 'success') {
+    if (response && response.data == 'success') {
         successMessage('Leave applied successfully')
         leavesStore.showLeavesForm = false
         leavesStore.form = {
@@ -59,7 +68,9 @@ async function submit() {
             "leave_date_range": '',
             "reason": '',
         }
+        notify()
         leavesStore.getMyLeaves()
+        leavesStore.getStats()
     }
 }
 
@@ -89,6 +100,7 @@ function cancel() {
 }
 
 onMounted(() => {
+  leavesTypesStores.getLeavesTypes()
     flatpickr('.datepicker', {
           mode: "range"
         }); 
