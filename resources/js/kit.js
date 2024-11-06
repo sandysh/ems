@@ -64,10 +64,9 @@ export function destroy(url) {
 export async function notify() {
     let response = await fetch('https://api.onesignal.com/notifications',{
         method: "POST",
-        mode: 'no-cors',
         headers: {
             "Authorization": 'Basic MDQ5M2E4MjktOGEwNC00Mzg0LTlkNjQtMDBiNzUwOTE5Zjdk',
-            "Access-Control-Allow-Origin": 'https://hrm.darkmattergame.net',
+            "access-control-allow-origin": 'https://hrm.darkmattergame.net',
             "accept": 'application/json',
             "content-type":'application/json'
         },
