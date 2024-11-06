@@ -27,18 +27,15 @@ def store(request):
         return JsonResponse(errors, status=422, safe=False)
     leave = json.loads(request.body)
     dateRange = leave['leave_date_range'].split(" to ")
-    leaves = Leaves.objects.filter(from_date__gte=dateRange[0], to_date__lte=dateRange[1] ).order_by('-id').values()
+    leaves = (Leaves.objects.filter(from_date__gte=dateRange[0], to_date__lte=dateRange[1])
+              .exclude(status='APPROVED')
+              .exclude(status='PENDING')
+              .order_by('-id').values())
     if leaves:
         return JsonResponse({'error':'You already have leaves either pending or approved for the applied dates'},status=422, safe=False)
     # from_date = date_splitter(dateRange[0])
     # to_date = date_splitter(dateRange[1])
     # dates_list = date_list_from_date_range(datetime(from_date['year'],from_date['month'],from_date['day']), datetime(to_date['year'],to_date['month'],to_date['day']))
-
-    return JsonResponse(list(leaves), safe=False)
-
-    available = check_if_leaves_are_available(request,leave)
-    if not available:
-        return JsonResponse({'error': 'You have already applied for these dates'}, status=422, safe=False)
     leave_type = LeavesTypes.objects.get(id=leave['leave_type'])
     total_leaves_taken = Leaves.objects.filter(user_id=request.user.id,status='APPROVED').count()
     if total_leaves_taken >= leave_type.days:
@@ -52,9 +49,6 @@ def store(request):
     }
     Leaves.objects.create(**newData)
     return JsonResponse('success', safe=False)
-
-def check_if_leaves_are_available(request, leave):
-    return Leaves.objects.filter(user_id=request.user.id, status='APPROVED').values()
 
 @never_cache
 def all(request):
