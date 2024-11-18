@@ -27,6 +27,10 @@ def store(request):
         return JsonResponse(errors, status=422, safe=False)
     leave = json.loads(request.body)
     dateRange = leave['leave_date_range'].split(" to ")
+    # return JsonResponse(dateFrags, safe=False)
+    if len(dateRange) != 2:
+        dateRange.append(str(dateRange[0]))
+        # return JsonResponse(dateRange, safe=False)
     leaves = (Leaves.objects.filter(from_date__gte=dateRange[0], to_date__lte=dateRange[1])
               .exclude(status='REJECTED')
               .exclude(status='CANCELLED')

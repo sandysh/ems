@@ -69,7 +69,7 @@ export async function notify(message) {
     delete axios.defaults.headers.common['X-CSRFTOKEN'];
     delete axios.defaults.headers.common['Cache-Control'];
     return axios.post('',{
-      "app_id": "567b4ce3-247b-45cf-8999-a943c6a55897",
+      "app_id": oneSignalAppID,
       "target_channel": "push",
       "contents": {"en": message, "es": message},
       "included_segments": ["All"]

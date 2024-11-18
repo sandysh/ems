@@ -9,3 +9,4 @@ class Attendance(models.Model):
     punch_out_date = models.DateField(default=None, blank=True, null=True)
     punch_out_time = models.TimeField(default=None, blank=True, null=True)
     pub_date = models.DateTimeField(auto_now=True)
+    ip_address = models.CharField(default=None, blank=True, null=True)

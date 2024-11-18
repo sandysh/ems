@@ -48,7 +48,7 @@ def index(request):
 
     buttonText = 'Punch Out' if attendance else 'Punch In'
 
-    users = User.objects.all()
+    users = User.objects.filter(is_active=True)
 
     records = Attendance.objects.filter(punch_in_date=date_filter).select_related('user')
 
@@ -152,6 +152,7 @@ def punch(request):
     attendance = None
     newData = {}
     notes = request.POST.get('notes')
+    ip_address = request.POST.get('ip_address')
     today = date.today()
     now = datetime.now().strftime("%H:%M")
     try:
@@ -165,7 +166,8 @@ def punch(request):
             "notes": notes,
             "punch_in_date": today,
             "punch_in_time": now,
-            "user": request.user
+            "user": request.user,
+            "ip_address": ip_address
         }
         attendance = Attendance.objects.create(**newData)
     return HttpResponseRedirect('/attendance/')

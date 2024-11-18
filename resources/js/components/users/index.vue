@@ -43,8 +43,12 @@
                     <p v-else class="text-xs font-weight-bold mb-0">User</p>
                   </td>
                   <td class="align-middle text-center text-sm">
-                    <span v-if="user.is_active" class="badge badge-sm bg-gradient-success">Active</span>
-                    <span v-else class="badge badge-sm bg-gradient-secondary">Suspended</span>
+                    <div class="custom-control custom-switch">
+                      <input @click="updateUserStatus(user)" type="checkbox" class="custom-control-input" :id="'customSwitch'+user.id" :checked="user.is_active">
+                      <label class="custom-control-label" :for="'customSwitch'+user.id"></label>
+                    </div>
+<!--                    <span v-if="user.is_active" class="badge badge-sm bg-gradient-success">Active</span>-->
+<!--                    <span v-else class="badge badge-sm bg-gradient-secondary">Suspended</span>-->
                   </td>
                   <td class="align-middle">
                     <a @click="edit(user)" href="javascript:;" class="text-white font-weight-bold text-xs btn btn-info btn-xs mx-2"
@@ -83,6 +87,7 @@ import deleteModal from '../shared/deleteModal.vue';
 import snackBar from '../shared/snackBar.vue';
 import pagination from '../pagination.vue';
 import Swal from "sweetalert2";
+import {post} from "../../kit";
 
 import {userStore, snackBarStore, deleteFormStore, errorsStore} from '../../store.js';
 const users = reactive({ list: {}, pagination:{}});
@@ -93,6 +98,10 @@ const user = ref({
 })
 const entity = ref({})
 const editableUser = ref({})
+
+async function updateUserStatus(user) {
+    let response = await post(`update/${user.id}/status`)
+}
 
 function getUsers() {
   axios.get(`all?paginate=true&page=${users.pagination.page ? users.pagination.page : 1 }`).then(response => {

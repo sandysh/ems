@@ -38,6 +38,7 @@
               <div class="form-group">
                 <label for="exampleFormControlTextarea1">Notes</label>
                 <textarea name="notes" class="form-control" id="exampleFormControlTextarea1" rows="5"></textarea>
+                <input type="hidden" name="ip_address" id="ip_address" value="">
               </div>
               {% endif %}
             </div>
@@ -100,4 +101,14 @@
 <user-summary></user-summary>
 
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', async function(){
+        let response = await axios.get('https://ipinfo.io?token=5fc0c7c6a8c1e4')
+        document.getElementById("ip_address").value = response.data.ip
+        console.log('ipinfo',response.data)
+    }, false);
+</script>
 {% endblock %}

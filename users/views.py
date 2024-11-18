@@ -93,6 +93,14 @@ def all(request):
     #     users = list(User.objects.all().order_by('-id').values("id","username","email","first_name","last_name","is_active","is_superuser"))
     #     return JsonResponse(users, safe=False)
 
+
+def updateUserStatus(request, user_id):
+    user = User.objects.get(id=user_id)
+    status = False if user.is_active == True else False
+    user.is_active = status
+    user.save()
+    return response(status)
+
 @require_http_methods(['PUT'])
 @login_required
 def update(request, user_id):

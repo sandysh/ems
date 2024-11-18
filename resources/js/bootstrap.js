@@ -36,7 +36,6 @@ window.axios.defaults.headers.common['Cache-Control'] = 'no-store'
  */
 
 window.oneSignalAppID = process.env.MIX_ONESIGNAL_APP_ID
-window.sandesh=process.env
 // import Echo from 'laravel-echo';
 
 // window.Pusher = require('pusher-js');

@@ -34,7 +34,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
 
   <!-- Bootstrap JS and dependencies -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<!--  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>-->
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
@@ -206,16 +206,15 @@
 
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
-  window.one_signal_app_id = process.env.MIX_ONESIGNAL_APP_ID
   window.onesignalAPIURL = "https://onesignal.com/api/v1/notifications";
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
-        appId: "567b4ce3-247b-45cf-8999-a943c6a55897",
+        appId: oneSignalAppID,
         serviceWorkerParam: { scope: "/static/sw/" },
         serviceWorkerPath: "static/sw/OneSignalSDKWorker.js",
     });
-    console.log(await OneSignal.getUserId());
+    console.log(await OneSignal.User.onesignalId);
   });
 </script>
   <script>
