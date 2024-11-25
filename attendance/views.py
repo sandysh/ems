@@ -48,7 +48,7 @@ def index(request):
 
     buttonText = 'Punch Out' if attendance else 'Punch In'
 
-    users = User.objects.filter(is_active=True)
+    users = User.objects.filter(is_active=True,is_superuser=False)
 
     records = Attendance.objects.filter(punch_in_date=date_filter).select_related('user')
 

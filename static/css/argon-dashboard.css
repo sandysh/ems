@@ -22540,7 +22540,7 @@ hr.horizontal.gray-light {
 
 .navbar-vertical.navbar-expand-xs .navbar-collapse {
   display: block;
-  overflow: auto;
+  /*overflow: auto;*/
   height: calc(100vh - 360px);
 }
 
