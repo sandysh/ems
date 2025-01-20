@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.views.decorators.http import *
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib import messages
-
+from django.http import JsonResponse
 # Create your views here.
 
 @login_required
@@ -25,7 +26,18 @@ def index(request):
     }
     return render(request, 'roles/index.html', context)
 
-  
+def update_role(user, group_id):
+    if not group_id:
+        return
+    group = Group.objects.filter(id=group_id).first()
+    if not group:
+        return
+    if user.groups.filter(id=group.id).exists():
+        return
+    user.groups.clear()
+    user.groups.add(group)
+
+
 
 @login_required
 def add_role(request):
@@ -95,3 +107,11 @@ def permissions(request, group_id):
         'permissions': permissions,
     }
     return render(request, 'roles/permissions.html', context)
+
+
+@login_required
+@require_http_methods(['GET'])
+def all_roles(request):
+    roles=Group.objects.all()
+    roles_data = [{'id': role.id, 'name': role.name} for role in roles]
+    return JsonResponse(roles_data, safe=False)

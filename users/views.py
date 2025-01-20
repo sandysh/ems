@@ -1,7 +1,7 @@
 import json
 import regex as re
 from users.rules import user_rules
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,Group
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login, logout
@@ -17,9 +17,10 @@ from django.core.paginator import Paginator
 from django.core.serializers import serialize
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse as response, HttpResponseRedirect, JsonResponse
-from helpers.general import make_pagination
+from helpers.general import make_pagination,make_serialized_pagination
 from django.http import HttpResponse
-
+from serializers.users_serializers import UserSerializer
+from roles.views import update_role
 # Create your views here.
 
 @login_required
@@ -39,16 +40,16 @@ def create(request):
 @login_required    
 def store(request):
     data = json.loads(request.body)
-    errors = Validator.validate(request, {
-        "username": "required|unique:auth_user|max:10|min:4",
-        "email" : "required|email"
-    })
+    # errors = Validator.validate(request, {
+    #     "username": "required|unique:auth_user|max:10|min:4",
+    #     "email" : "required|email"
+    # })
     
-    if errors:
-        return JsonResponse(errors, status=422, safe=False)
+    # if errors:
+    #     return JsonResponse(errors, status=422, safe=False)
     
-    if errors and is_ajax:
-        return JsonResponse(errors, status=422, safe=False)
+    # if errors and is_ajax:
+    #     return JsonResponse(errors, status=422, safe=False)
     
     newData = {
         "password": make_password(data['password']),
@@ -59,21 +60,24 @@ def store(request):
         "is_active": data['is_active'],
         "first_name": data['first_name'],
     }
-
     data['password'] = make_password(data['password'])
     user = User.objects.create(**newData)
+    group_id=int(data['group'])
+    group=Group.objects.get(id=group_id)
+    if group:
+        user.groups.add(group)
     return response(user)
     # return response(request.POST.get('first_name'))
 
 @login_required
 def all(request):
     paginate = request.GET.get('paginate')
-    users = User.objects.all().order_by('-id')
+    users_data = User.objects.all().exclude(is_superuser=True).order_by('-id')
+    users = UserSerializer(users_data, many=True)
     if paginate:
-        paginated_data = make_pagination(request, users)
+        paginated_data = make_serialized_pagination(request, users_data,UserSerializer)
         return JsonResponse(paginated_data, safe=False)
     else:
-        users = list(User.objects.all().order_by('-id').values())
         return JsonResponse(users, safe=False)
     
     
@@ -105,16 +109,16 @@ def updateUserStatus(request, user_id):
 @login_required
 def update(request, user_id):
     data = json.loads(request.body)
-    errors = Validator.validate(request, {
-        "username": "required|unique:auth_user|max:10|min:6",
-        "email" : "required|email"
-    })
+    # errors = Validator.validate(request, {
+    #     "username": "required|unique:auth_user|max:10|min:6",
+    #     "email" : "required|email"
+    # })
     
-    if errors:
-        return JsonResponse(errors, status=422, safe=False)
+    # if errors:
+    #     return JsonResponse(errors, status=422, safe=False)
     
-    if errors and is_ajax:
-        return JsonResponse(errors, status=422, safe=False)
+    # if errors and is_ajax:
+    #     return JsonResponse(errors, status=422, safe=False)
     
     newData = {
         "is_superuser": data['is_superuser'],
@@ -125,11 +129,15 @@ def update(request, user_id):
         "first_name": data['first_name'],
     }
     
-    if(data['password']):
-        newData.update("password", make_password(data['password']))
+    # if(data['password']):
+    #     newData.update("password", make_password(data['password']))
 
-    data['password'] = make_password(data['password'])
-    user = User.objects.filter(id=user_id).update(**newData)
+    # data['password'] = make_password(data['password'])
+    
+    User.objects.filter(id=user_id).update(**newData)
+    user = User.objects.get(id=user_id)
+    group_id=int(data['groups'])
+    update_role(user,group_id)
     return response(user)
 
 @login_required
@@ -152,3 +160,9 @@ def all_users(request):
     users = User.objects.all().order_by('-id')
     data = [{'id': user.id, 'username': user.username} for user in users]
     return JsonResponse(data, safe=False)
+
+
+
+    group=Group.objects.get(id=group_id)
+    if user and group:
+        user.groups.add(group)
