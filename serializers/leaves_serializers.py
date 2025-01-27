@@ -15,7 +15,8 @@ class LeavesTypesSerializer(serializers.ModelSerializer):
 
 class LeavesSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    leave_type = LeavesTypesSerializer()
+    leave_type = LeavesTypesSerializer(required=True)
     class Meta:
         model = Leaves
         fields = ['id','from_date', 'to_date','reason','user','leave_type','status','created_at','updated_at']
+    reason=serializers.CharField(required=True,error_messages={'blank':'Reason Field is required'})

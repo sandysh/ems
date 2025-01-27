@@ -19,6 +19,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.Serializer):
+    id=serializers.IntegerField(read_only=True)
     first_name=serializers.CharField(required=True,allow_blank=False,error_messages={
         'blank':'First Name cannot be empty',
     })
