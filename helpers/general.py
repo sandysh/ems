@@ -3,7 +3,7 @@ import re
 from django.core.paginator import Paginator
 from django.core.serializers import serialize
 import json
-
+from datetime import *
 from pendulum import day
 
 from serializers.leaves_serializers import LeavesSerializer
@@ -111,3 +111,37 @@ def date_list_from_date_range(start, end):
     for i in range(delta.days + 1):
         days.append((start + timedelta(days=i)).strftime("%Y-%m-%d"))
     return days
+
+
+
+
+def time_difference(time1, time2):
+    if isinstance(time1,timedelta) and isinstance(time2,timedelta):
+        diff = time1.total_seconds() - time2.total_seconds()
+        if diff < timedelta(0).total_seconds(): 
+            diff = timedelta(0).total_seconds()
+        hours = diff // 3600
+        minutes = (diff % 3600) // 60
+        return timedelta(hours=hours,minutes=minutes)
+    else:
+        hours=time1.hour-time2.hour
+        minutes=time1.minute-time2.minute
+        return timedelta(hours=hours,minutes=minutes)
+def time_sum(time1, time2):
+    diff = time1.total_seconds() + time2.total_seconds()
+    if diff < timedelta(0).total_seconds(): 
+        diff = timedelta(0).total_seconds()
+    hours = diff // 3600
+    minutes = (diff % 3600) // 60
+    return timedelta(hours=hours,minutes=minutes)
+
+
+def parse_time(time_str:str):
+    hour,minutes=map(int,time_str.split(':'))
+    return time(hour=hour,minute=minutes)
+
+
+def parse_duration(duration_str:str):
+    hour,minutes=map(int,duration_str.split(':'))
+    return timedelta(hours=hour,minutes=minutes)
+    

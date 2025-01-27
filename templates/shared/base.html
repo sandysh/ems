@@ -1,261 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-  {% load static%} {%load group_permission%}
-
+  {% load static %}
+  {% load group_permission %}
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="76x76"
-      href="./assets/img/apple-icon.png"
-    />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="apple-touch-icon"
+          sizes="76x76"
+          href="./assets/img/apple-icon.png" />
     <link rel="icon" type="image/png" href="./assets/img/favicon.png" />
     <title>Employee Rating System</title>
-
     <!-- Fonts and icons -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+          rel="stylesheet" />
     <link href="{% static 'css/nucleo-icons.css' %}" rel="stylesheet" />
     <link href="{% static 'css/nucleo-svg.css' %}" rel="stylesheet" />
-
     <!-- Font Awesome Icons -->
-    <script
-      src="https://kit.fontawesome.com/42d5adcbca.js"
-      crossorigin="anonymous"
-    ></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-
+    <script src="https://kit.fontawesome.com/42d5adcbca.js"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
     <!-- CSS Files -->
-    <link
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          rel="stylesheet" />
     <link href="{% static 'css/argon-dashboard.css' %}" rel="stylesheet" />
     <link href="{% static 'css/custom.css' %}" rel="stylesheet" />
-
     <!-- Flatpickr CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
-    />
-
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
     <!-- Bootstrap JS, dependencies, and other necessary JS files -->
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
-      defer
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
-      defer
-    ></script>
-    <script
-      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
-      defer
-    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+            defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"
+            defer></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+            defer></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
-      defer
-    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
+            defer></script>
   </head>
-
   <body class="g-sidenav-show bg-gray-100">
-    <div
-      class="bg-primary position-absolute w-100"
-      style="min-height: 65px"
-    ></div>
-
+    <div class="bg-primary position-absolute w-100" style="min-height: 65px"></div>
     <!-- Sidebar -->
-    <aside
-      class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 fixed-start"
-      id="sidenav-main"
-    >
-      <div class="sidenav-header">
-        <i
-          class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
-          aria-hidden="true"
-          id="iconSidenav"
-        ></i>
-        <a class="navbar-brand m-0" href="" target="_blank">
-          <span class="ms-1 font-weight-bold">Employee Rating System</span>
-        </a>
-      </div>
-      <hr class="horizontal dark mt-0" />
-      <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
-        <ul class="navbar-nav">
-          {% if request.user.is_superuser %}
-          <li class="nav-item">
-            <a class="nav-link active" href="{% url 'dashboardIndex' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
-              </div>
-              <span class="nav-link-text ms-1">Dashboard</span>
-            </a>
-          </li>
-          {% endif %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'attendanceIndex' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i
-                  class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-                ></i>
-              </div>
-              <span class="nav-link-text ms-1">Attendance</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'leavesIndex' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i
-                  class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-                ></i>
-              </div>
-              <span class="nav-link-text ms-1">Leaves</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'rateIndex' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i
-                  class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-                ></i>
-              </div>
-              <span class="nav-link-text ms-1">Rate</span>
-            </a>
-          </li>
-          {% if user|has_group_permission:'view_metrices'%}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'metricesIndex' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i
-                  class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-                ></i>
-              </div>
-              <span class="nav-link-text ms-1">Metrices</span>
-            </a>
-          </li>
-          {% endif %} {% if user|has_group_permission:'view_task' %}
-          <li class="nav-item">
-            <a
-              class="nav-link {% if '/project/' in request.path %} active {% endif %}"
-              href="{% url 'projectIndex' %}"
-            >
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
-              </div>
-              <span class="nav-link-text ms-1">Project</span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a
-              class="nav-link {% if '/task/' in request.path %} active {% endif %}"
-              href="{% url 'taskIndex' %}"
-            >
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
-              </div>
-              <span class="nav-link-text ms-1">Task</span>
-            </a>
-          </li>
-          {% endif %}{%if user|has_group_permission:'view_user' %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'userIndex' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i
-                  class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-                ></i>
-              </div>
-              <span class="nav-link-text ms-1">Users</span>
-            </a>
-          </li>
-          {% endif %} {% if user|has_group_permission:'view_roles' %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'rolesIndex' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i
-                  class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-                ></i>
-              </div>
-              <span class="nav-link-text ms-1">Roles</span>
-            </a>
-          </li>
-          {% endif %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">
-              <div
-                class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center"
-              >
-                <i
-                  class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-                ></i>
-              </div>
-              <span class="nav-link-text ms-1">Logout</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </aside>
-
+    {% include "shared/sidebar.html" %}
     <main class="main-content position-relative border-radius-lg">
-      <nav
-        class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl"
-        id="navbarBlur"
-        data-scroll="false"
-      >
+      <nav class="navbar navbar-main navbar-expand-lg px-0 mx-4 shadow-none border-radius-xl"
+           id="navbarBlur"
+           data-scroll="false">
         <div class="container-fluid py-1 px-3">
           <nav aria-label="breadcrumb">
-            <ol
-              class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5"
-            >
+            <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
               <li class="breadcrumb-item text-sm">
                 <a class="opacity-5 text-white" href="javascript:;">Pages</a>
               </li>
-              <li
-                class="breadcrumb-item text-sm text-white active"
-                aria-current="page"
-              >
-                Dashboard
-              </li>
+              <li class="breadcrumb-item text-sm text-white active" aria-current="page">Dashboard</li>
             </ol>
           </nav>
-          <div
-            class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4"
-            id="navbar"
-          >
+          <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4"
+               id="navbar">
             <div class="ms-md-auto pe-md-3 d-flex align-items-center">
               <div class="input-group">
                 <!-- Optional search -->
@@ -263,63 +71,42 @@
             </div>
             <ul class="navbar-nav justify-content-end">
               <li class="nav-item dropdown">
-                <a
-                  class="nav-link dropdown-toggle text-white font-weight-bold px-0"
-                  href="#"
-                  id="navbarDropdown"
-                  role="button"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                >
+                <a class="nav-link dropdown-toggle text-white font-weight-bold px-0"
+                   href="#"
+                   id="navbarDropdown"
+                   role="button"
+                   data-toggle="dropdown"
+                   aria-haspopup="true"
+                   aria-expanded="false">
                   <i class="fa fa-user me-sm-1"></i>
-                  <span class="d-sm-inline d-none"
-                    >{{ request.user.first_name }}</span
-                  >
+                  <span class="d-sm-inline d-none">{{ request.user.first_name }}</span>
                 </a>
-                <div
-                  class="dropdown-menu dropdown-menu-right"
-                  aria-labelledby="navbarDropdown"
-                >
-                  <a
-                    class="dropdown-item"
-                    href="{% url 'profile' username=user.username %}"
-                    >Profile</a
-                  >
+                <div class="dropdown-menu dropdown-menu-right"
+                     aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item"
+                     href="{% url 'profile' username=user.username %}">Profile</a>
                 </div>
               </li>
             </ul>
           </div>
         </div>
       </nav>
-
       <div class="container-fluid py-4" id="app">
-        {% block content %} {% endblock %}
+        {% block content %}{% endblock %}
       </div>
     </main>
-
     <!-- Core JS Files -->
     <script src="{% static 'js/app.js' %}" defer></script>
     <script src="{% static 'js/core/popper.min.js' %}" defer></script>
     <script src="{% static 'js/core/bootstrap.min.js' %}" defer></script>
-    <script
-      src="{% static 'js/plugins/perfect-scrollbar.min.js' %}"
-      defer
-    ></script>
-    <script
-      src="{% static 'js/plugins/smooth-scrollbar.min.js' %}"
-      defer
-    ></script>
+    <script src="{% static 'js/plugins/perfect-scrollbar.min.js' %}" defer></script>
+    <script src="{% static 'js/plugins/smooth-scrollbar.min.js' %}" defer></script>
     <script src="{% static 'js/plugins/chartjs.min.js' %}" defer></script>
     <script src="{% static 'js/argon-dashboard.min.js' %}" defer></script>
     <script src="{% static 'js/plugins/flatpickr.min.js' %}" defer></script>
-
-    {% block scripts %} {% endblock %}
-
-    <script
-      src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-      defer
-    ></script>
+    {% block scripts %}{% endblock %}
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
+            defer></script>
     <script>
       // OneSignal initialization
       window.onesignalAPIURL = "https://onesignal.com/api/v1/notifications";

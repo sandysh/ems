@@ -1,0 +1,121 @@
+{% load group_permission %}
+{% load static %}
+<aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 fixed-start shadow"
+       id="sidenav-main">
+    <div class="sidenav-header d-flex align-items-center justify-content-between">
+        <a class="navbar-brand m-0 d-flex align-items-center"
+           href="#"
+           target="_blank">
+            <span class="ms-1 font-weight-bold">Employee Rating System</span>
+        </a>
+        <button class="btn btn-link p-0 m-0 d-xl-none" id="iconSidenav">
+            <i class="fas fa-times text-secondary opacity-5"></i>
+        </button>
+    </div>
+    <hr class="horizontal dark my-0" />
+    <div class=" h-auto collapse navbar-collapse w-auto overflow-auto"
+         id="sidenav-collapse-main">
+        <ul class="navbar-nav">
+            {% if request.user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'dashboardIndex' %}">
+                        <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-chart-line text-primary"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Dashboard</span>
+                    </a>
+                </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'attendanceIndex' %}">
+                    <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-calendar-check text-success"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Attendance</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'leavesIndex' %}">
+                    <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-calendar-alt text-warning"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Leaves</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'rateIndex' %}">
+                    <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-star text-info"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Rate</span>
+                </a>
+            </li>
+            {% if user|has_group_permission:'view_metrices' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'metricesIndex' %}">
+                        <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-chart-pie text-danger"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Metrics</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if user|has_group_permission:'view_task' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if '/project/' in request.path %}active{% endif %}"
+                       href="{% url 'projectIndex' %}">
+                        <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-project-diagram text-secondary"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Projects</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if '/task/' in request.path %}active{% endif %}"
+                       href="{% url 'taskIndex' %}">
+                        <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-tasks text-primary"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Tasks</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if user|has_group_permission:'view_user' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'userIndex' %}">
+                        <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-users text-success"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Users</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if user|has_group_permission:'view_roles' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'rolesIndex' %}">
+                        <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-user-tag text-warning"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Roles</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'settingsIndex' %}">
+                        <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                            <i class="fas fa-cogs text-secondary"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Settings</span>
+                    </a>
+                </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">
+                    <div class="icon icon-shape icon-sm text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-sign-out-alt text-danger"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</aside>

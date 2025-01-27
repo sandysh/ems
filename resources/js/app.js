@@ -4,11 +4,9 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+require("./bootstrap");
 
-require('./bootstrap');
-
-window.Vue = require('vue').default;
-
+window.Vue = require("vue").default;
 
 /**
  * The following block of code may be used to automatically register your
@@ -29,37 +27,35 @@ window.Vue = require('vue').default;
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-import { createApp } from 'vue'
-import ExampleComponent from './components/ExampleComponent';
-import UserIndex from './components/users/index.vue';
-import MetricesIndex from './components/metrices/index.vue';
-import RateIndex from './components/rate/index.vue';
-import UserSummary from './components/attendance/UserSummary.vue';
-import LeavesIndex from './components/leaves/LeavesIndex.vue';
-import AdminLeavesIndex from './components/leaves/AdminLeavesIndex.vue';
-import DashStats from './components/dashboard/DashStats.vue';
-import DashPoints from './components/dashboard/PointsTable.vue';
-import ProjectIndex from './components/project/index.vue';
-import TaskIndex from './components/task/index.vue';
-
+import { createApp } from "vue";
+import ExampleComponent from "./components/ExampleComponent";
+import UserIndex from "./components/users/index.vue";
+import MetricesIndex from "./components/metrices/index.vue";
+import RateIndex from "./components/rate/index.vue";
+import UserSummary from "./components/attendance/UserSummary.vue";
+import LeavesIndex from "./components/leaves/LeavesIndex.vue";
+import AdminLeavesIndex from "./components/leaves/AdminLeavesIndex.vue";
+import DashStats from "./components/dashboard/DashStats.vue";
+import DashPoints from "./components/dashboard/PointsTable.vue";
+import ProjectIndex from "./components/project/index.vue";
+import TaskIndex from "./components/task/index.vue";
+import SettingsIndex from "./components/settings/index.vue";
 const app = createApp({
-    components:{
-        ExampleComponent,
-        UserIndex,
-        MetricesIndex,
-        RateIndex,
-        UserSummary,
-        LeavesIndex,
-        AdminLeavesIndex,
-        DashStats,
-        DashPoints,
-        ProjectIndex,
-        TaskIndex
-    },
-    data() {
-        return {
-        }
-    }
-}).mount('#app')
-
-
+  components: {
+    ExampleComponent,
+    UserIndex,
+    MetricesIndex,
+    RateIndex,
+    UserSummary,
+    LeavesIndex,
+    AdminLeavesIndex,
+    DashStats,
+    DashPoints,
+    ProjectIndex,
+    TaskIndex,
+    SettingsIndex,
+  },
+  data() {
+    return {};
+  },
+}).mount("#app");

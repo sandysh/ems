@@ -6,8 +6,10 @@ from attendance.models import Attendance
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-
-
+from worklog.views import store_worklog
+from helpers.general import time_difference
+from datetime import time
+from settings.views import get_punch_in_time,get_punch_out_time
 def dateMaker(range):
     fromDate = None
     toDate = None
@@ -47,7 +49,10 @@ def index(request):
         print(f"An exception occurred: {e}")
 
     buttonText = 'Punch Out' if attendance else 'Punch In'
-
+    check_punch_in=True
+    if buttonText == 'Punch In':
+        check_punch_in=valid_check_in_time()
+        print(check_punch_in)
     users = User.objects.filter(is_active=True,is_superuser=False)
 
     records = Attendance.objects.filter(punch_in_date=date_filter).select_related('user')
@@ -68,6 +73,7 @@ def index(request):
         'attendance': attendance,
         'buttonText': buttonText,
         'single_date': single_date,
+        'check':check_punch_in
     }
 
     template = "attendance/admin/index.html" if request.user.is_superuser else "attendance/user/index.html"
@@ -94,7 +100,7 @@ def attendance_history(request, user_id):
             user=user,
             punch_in_date__range=[start_date, today]
         ).select_related('user')
-
+        
     context = {
         'user': user,
         'attendance_records': records,
@@ -160,14 +166,20 @@ def punch(request):
     except:
         print("An exception occurred")
     if attendance:
-        attendance.update(punch_out_date = today, punch_out_time = now )
+        punch_in_time=attendance.first().punch_in_time
+        hours_worked=time_difference(datetime.now().time(),punch_in_time)
+        #hours_worked_duration=timedelta(hours=hours_worked.hour,minutes=hours_worked.minute)
+        check=store_worklog(request.user,hours_worked)
+        if check:
+            attendance.update(punch_out_date = today, punch_out_time = now ,hours_worked=hours_worked ) 
+            return HttpResponseRedirect('/attendance/')
     else:
         newData = {
             "notes": notes,
             "punch_in_date": today,
             "punch_in_time": now,
             "user": request.user,
-            "ip_address": ip_address
+            "ip_address": ip_address,
         }
         attendance = Attendance.objects.create(**newData)
     return HttpResponseRedirect('/attendance/')
@@ -187,5 +199,21 @@ def summary(request):
             summaries = Attendance.objects.filter(user_id =request.user.id, punch_in_date=range[0]).values()
      else:
         summaries = Attendance.objects.filter(user_id =request.user.id).values()
+     for record in summaries:
+        if record["punch_in_time"]:
+            record["punch_in_time"] = record["punch_in_time"].strftime("%I:%M %p")
+        if record["punch_out_time"]:
+            record["punch_out_time"] = record["punch_out_time"].strftime("%I:%M %p")
      return JsonResponse(list(summaries), safe=False)
 
+
+def valid_check_in_time():
+    now_unformatted = datetime.now()
+    [start, finish] = get_punch_in_time()
+    now = time(hour=now_unformatted.hour, minute=now_unformatted.minute)
+    if start.hour < now.hour < finish.hour:
+        return True
+    elif start.minute<now.minute<finish.minute:
+        return True
+    else:
+        return {'start':start,'finish':finish}

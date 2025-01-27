@@ -40,16 +40,12 @@ def create(request):
 @login_required    
 def store(request):
     data = json.loads(request.body)
-    # errors = Validator.validate(request, {
-    #     "username": "required|unique:auth_user|max:10|min:4",
-    #     "email" : "required|email"
-    # })
+    serializer =UserSerializer(data=data)
+    if not serializer.is_valid():
+        return JsonResponse(serializer.errors, status=422, safe=False)
     
-    # if errors:
-    #     return JsonResponse(errors, status=422, safe=False)
-    
-    # if errors and is_ajax:
-    #     return JsonResponse(errors, status=422, safe=False)
+    if not serializer.is_valid and is_ajax:
+        return JsonResponse(serializer.errors, status=422, safe=False)
     
     newData = {
         "password": make_password(data['password']),
@@ -63,9 +59,8 @@ def store(request):
     data['password'] = make_password(data['password'])
     user = User.objects.create(**newData)
     group_id=int(data['group'])
-    group=Group.objects.get(id=group_id)
-    if group:
-        user.groups.add(group)
+    group = Group.objects.get(id=group_id) if group_id else Group.objects.filter(name="User").first()
+    user.groups.add(group)
     return response(user)
     # return response(request.POST.get('first_name'))
 
@@ -74,11 +69,11 @@ def all(request):
     paginate = request.GET.get('paginate')
     users_data = User.objects.all().exclude(is_superuser=True).order_by('-id')
     users = UserSerializer(users_data, many=True)
-    if paginate:
+    if  paginate:
         paginated_data = make_serialized_pagination(request, users_data,UserSerializer)
         return JsonResponse(paginated_data, safe=False)
     else:
-        return JsonResponse(users, safe=False)
+        return JsonResponse(users.data, safe=False)
     
     
     # paginate = request.GET.get('paginate')
@@ -100,7 +95,7 @@ def all(request):
 
 def updateUserStatus(request, user_id):
     user = User.objects.get(id=user_id)
-    status = False if user.is_active == True else False
+    status = False if user.is_active == True else True
     user.is_active = status
     user.save()
     return response(status)

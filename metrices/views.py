@@ -37,13 +37,13 @@ def all(request):
 @login_required
 def store(request):
     metrices = json.loads(request.body)
-    errors = Validator.validate(request, MetricRules.valid_rules, MetricRules.messages)
+    #errors = Validator.validate(request, MetricRules.valid_rules, MetricRules.messages)
     # data = Validator.validated_data()
     # return JsonResponse(data, status=422, safe=False)
     # if Validator.failed():
     #     return JsonResponse(Validator.validation_error, status=422, safe=False)
-    if errors and is_ajax:
-        return JsonResponse(errors, status=422, safe=False)
+    # if errors and is_ajax:
+    #     return JsonResponse(errors, status=422, safe=False)
     inputs = {
         'name': metrices['name'],
         'score': metrices['score'],

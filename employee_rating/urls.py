@@ -33,6 +33,8 @@ urlpatterns = [
     path('project/', include("project.urls")),
     path('task/',include("task.urls")),
     path('leaves-types/',include("leaves_types.urls")),
+    path('worklogs/',include("worklog.urls")),
+    path('settings/',include("settings.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

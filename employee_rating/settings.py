@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-*d2s2ufce#e4c^gm739r^c%f&b6wz#66g0w*t^!8iuse6-$n2e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(",")
-# print('ALLOWED',ALLOWED_HOSTS)
+print('ALLOWED',ALLOWED_HOSTS)
 # print('DATABASE NAME',os.getenv("DATABASE_NAME"))
 CSRF_TRUSTED_ORIGINS = ['https://hrm.ajnaenterprise.com']
 DATABASES = {
@@ -72,7 +72,9 @@ INSTALLED_APPS = [
     'project.apps.ProjectConfig',
     'task.apps.TaskConfig',
     'rest_framework',
-    'leaves_types.apps.LeavesTypesConfig'
+    'leaves_types.apps.LeavesTypesConfig',
+    'worklog.apps.WorkLogConfig',
+    'settings.apps.SettingsConfig',
 ]
 
 MIDDLEWARE = [

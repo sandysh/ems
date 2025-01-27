@@ -1,52 +1,57 @@
 import { reactive, watch } from "vue";
 import { post, put } from "./kit";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 export const userStore = reactive({
-    showUserForm: false,
-    showEditUserForm: false,
-})
+  showUserForm: false,
+  showEditUserForm: false,
+});
+export const settingsUpdate = reactive({
+  showSettingForm: false,
+  showEditSettingForm: false,
+});
 export const metricStore = reactive({
-    showAddMetricForm: false,
-    showEditMetricForm: false,
-})
+  showAddMetricForm: false,
+  showEditMetricForm: false,
+});
 
 export const projectStore = reactive({
-    showProjectForm: false,
-    showEditProjectForm: false,
-    showAddStatusForm: false,
-})
+  showProjectForm: false,
+  showEditProjectForm: false,
+  showAddStatusForm: false,
+});
 
 export const snackBarStore = reactive({
-    snackbarMessage: '',
-})
+  snackbarMessage: "",
+});
 
 export const deleteFormStore = reactive({
-    showDeleteForm: false,
-})
+  showDeleteForm: false,
+});
 
 export const errorsStore = reactive({
-    list:{},show: false
-})
+  list: {},
+  show: false,
+});
 
-export const successMessage = function(msg){
-    Swal.fire({
+export const successMessage = function (msg) {
+  Swal.fire({
     position: "top-end",
     icon: "success",
     title: msg || "Success",
     showConfirmButton: false,
-    timer: 1500
-    });
-}
+    timer: 1500,
+  });
+};
 
-export const failedMessage = function(msg){
-    Swal.fire({
+export const failedMessage = function (msg) {
+  Swal.fire({
     position: "top-end",
     icon: "error",
     title: msg || "Something went wrong, please try again later",
     showConfirmButton: false,
-    timer: 1500
-    });
-}
+    timer: 1500,
+  });
+};
 
-export const stausStore = reactive({list: {}})
+export const stausStore = reactive({ list: {} });
