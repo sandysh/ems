@@ -31,7 +31,7 @@ DEBUG = True
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(",")
 print('ALLOWED',ALLOWED_HOSTS)
 # print('DATABASE NAME',os.getenv("DATABASE_NAME"))
-CSRF_TRUSTED_ORIGINS = ['https://hrm.ajnaenterprise.com']
+CSRF_TRUSTED_ORIGINS = ['https://hrm.ajnaenterprise.com','https://hrm.darkmattergame.net']
 DATABASES = {
     "default": {
         "ENGINE": os.getenv('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
