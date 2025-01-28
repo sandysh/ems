@@ -4,7 +4,6 @@ from django.http import HttpResponse, JsonResponse
 from pendulum import datetime
 from serializers.leaves_serializers import LeavesSerializer
 from leaves.models import Leaves
-from django_easy_validation import Validator
 from django.utils.dateparse import parse_date
 from helpers.general import is_ajax, serialize_data
 from leaves.rules.leaves_rules import LeavesRules

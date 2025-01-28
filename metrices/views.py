@@ -6,7 +6,7 @@ from helpers.general import make_pagination
 from django.views.decorators.http import require_http_methods
 
 from helpers.general import is_ajax
-from django_easy_validation import Validator
+
 from metrices.rules.metrices_rules import MetricRules
 from django.contrib.auth.decorators import login_required
 from helpers.general import make_pagination
