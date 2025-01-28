@@ -7,9 +7,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.contrib import messages
-#from rating.helpers.json_response import jsonResponse
-from django_easy_validation import Validator
-#from django_easy_validation import validators
+
 from helpers.general import is_ajax
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods

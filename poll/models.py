@@ -13,4 +13,5 @@ class Poll(models.Model):
     description=models.TextField()
     created_by=models.ForeignKey(User,on_delete=models.DO_NOTHING)
     status=models.CharField(choices=POLL_STATUS,default="PENDING")
-    timestap=models.DateTimeField(auto_now_add=True)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)

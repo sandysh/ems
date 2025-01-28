@@ -13,7 +13,8 @@
                                 <p class="text-ss text-uppercase font-weight-bold mb-1">{{ poll.created_by.first_name +
                                     " "
                                     + poll.created_by.last_name }}</p>
-                                <p class="fs-5 text-uppercase font-weight-bold mb-1">{{ poll.timestamp }}</p>
+                                <p class="fs-5 text-uppercase font-weight-bold mb-1">{{ moment(new
+                                    Date(poll.created_at)).format("MMM Do YY") }}</p>
 
                             </div>
                             <hr>

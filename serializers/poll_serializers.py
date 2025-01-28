@@ -13,10 +13,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 class PollSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
-    timestamp = serializers.DateTimeField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
     class Meta:
         model=Poll
-        fields=['id','name', 'description', 'created_by','timestamp']
+        fields=['id','name', 'description', 'created_by','created_at','updated_at']
 
 class PollOptionsSerializer(serializers.ModelSerializer):
     poll=PollSerializer()
