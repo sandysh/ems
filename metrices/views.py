@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from helpers.general import make_pagination
 from django.views.decorators.http import require_http_methods
-# from rating.validations import Validator
+
 from helpers.general import is_ajax
 from django_easy_validation import Validator
 from metrices.rules.metrices_rules import MetricRules
