@@ -53,7 +53,7 @@
               </div>
             {% endif %}
           </div>
-          {% if check.start and check.finish %}
+          {% if check.disabled %}
             <button class="btn btn-success" disabled>Time Out</button>
             <p class="text-danger">Attendance is between {{ check.start }}-{{ check.finish }}</p>
           {% else %}

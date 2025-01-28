@@ -52,7 +52,6 @@ def index(request):
     check_punch_in=True
     if buttonText == 'Punch In':
         check_punch_in=valid_check_in_time()
-        print(check_punch_in)
     users = User.objects.filter(is_active=True,is_superuser=False)
 
     records = Attendance.objects.filter(punch_in_date=date_filter).select_related('user')
@@ -208,12 +207,8 @@ def summary(request):
 
 
 def valid_check_in_time():
-    now_unformatted = datetime.now()
-    [start, finish] = get_punch_in_time()
-    now = time(hour=now_unformatted.hour, minute=now_unformatted.minute)
-    if start.hour < now.hour < finish.hour:
-        return True
-    elif start.minute<now.minute<finish.minute:
-        return True
-    else:
-        return {'start':start,'finish':finish}
+    now = datetime.now().time()
+    start, finish = get_punch_in_time()
+    if start <= now <= finish:
+        return {'disalbed':False}
+    return {'disalbed':True,'start': start, 'finish': finish}
