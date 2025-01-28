@@ -35,6 +35,7 @@ urlpatterns = [
     path('leaves-types/',include("leaves_types.urls")),
     path('worklogs/',include("worklog.urls")),
     path('settings/',include("settings.urls")),
+    path('poll/',include("poll.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

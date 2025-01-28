@@ -5,6 +5,7 @@ from django.core.serializers import serialize
 import json
 from datetime import *
 from pendulum import day
+from django.contrib.auth.models import User
 
 from serializers.leaves_serializers import LeavesSerializer
 from django.http import JsonResponse, HttpResponse
@@ -30,7 +31,7 @@ def serialize_data(queryset):
 
 def make_pagination(request, query):
     page = request.GET.get('page')
-    limit = request.GET.get('limit', 25)
+    limit = request.GET.get('limit', 25 if query.model==User else 5)
     paginator = Paginator(query, limit)
     page_obj = paginator.get_page(page)
     serialized_page = serialize("json", page_obj)
@@ -54,7 +55,7 @@ def make_pagination(request, query):
 
 def make_serialized_pagination(request, query, serializer):
     page = request.GET.get('page')
-    limit = request.GET.get('limit', 25)
+    limit = request.GET.get('limit', 25 if query.model==User else 5)
     paginator = Paginator(query, limit)
     page_obj = paginator.get_page(page)
     serialized_page = serialize("json", page_obj)

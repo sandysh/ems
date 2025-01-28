@@ -2,9 +2,10 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from pendulum import datetime
-
+from serializers.leaves_serializers import LeavesSerializer
 from leaves.models import Leaves
 from django_easy_validation import Validator
+from django.utils.dateparse import parse_date
 from helpers.general import is_ajax, serialize_data
 from leaves.rules.leaves_rules import LeavesRules
 from django.views.decorators.cache import never_cache
@@ -21,39 +22,61 @@ def index(request):
 @never_cache
 @require_http_methods('POST')
 @login_required
-def store(request):
-    errors = Validator.validate(request, LeavesRules.valid_rules, LeavesRules.messages)
-    if errors and is_ajax:
-        return JsonResponse(errors, status=422, safe=False)
-    leave = json.loads(request.body)
-    dateRange = leave['leave_date_range'].split(" to ")
-    # return JsonResponse(dateFrags, safe=False)
-    if len(dateRange) != 2:
-        dateRange.append(str(dateRange[0]))
-        # return JsonResponse(dateRange, safe=False)
-    leaves = (Leaves.objects.filter(from_date__gte=dateRange[0], to_date__lte=dateRange[1])
-              .exclude(status='REJECTED')
-              .exclude(status='CANCELLED')
-              .order_by('-id').values())
 
-    if leaves:
-        return JsonResponse({'error':'You already have leaves either pending or approved for the applied dates'},status=422, safe=False)
-    # from_date = date_splitter(dateRange[0])
-    # to_date = date_splitter(dateRange[1])
-    # dates_list = date_list_from_date_range(datetime(from_date['year'],from_date['month'],from_date['day']), datetime(to_date['year'],to_date['month'],to_date['day']))
-    leave_type = LeavesTypes.objects.get(id=leave['leave_type'])
-    total_leaves_taken = Leaves.objects.filter(user_id=request.user.id,status='APPROVED').count()
+def store(request):
+
+    try:
+        leave_data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+
+    leave_serializer = LeavesSerializer(data=leave_data)
+    if not leave_serializer.is_valid():
+        return JsonResponse(leave_serializer.errors, status=422, safe=False)
+
+ 
+    leave_date_range = leave_data.get('leave_date_range', '')
+    try:
+        date_range = leave_date_range.split(" to ")
+        from_date, to_date = parse_date(date_range[0]), parse_date(date_range[1]) if len(date_range) > 1 else parse_date(date_range[0])
+        if not from_date or not to_date:
+            raise ValueError("Invalid date range")
+    except (IndexError, ValueError):
+        return JsonResponse({'error': 'Invalid leave_date_range format. Expected "YYYY-MM-DD to YYYY-MM-DD".'}, status=422)
+
+    overlapping_leaves = Leaves.objects.filter(
+        user_id=request.user.id,
+        from_date__lte=to_date,
+        to_date__gte=from_date,
+    ).exclude(status__in=['REJECTED', 'CANCELLED'])
+
+    if overlapping_leaves.exists():
+        return JsonResponse({'error': 'You already have leaves either pending or approved for the applied dates.'}, status=422)
+
+    try:
+        leave_type = LeavesTypes.objects.get(id=leave_data['leave_type'])
+    except LeavesTypes.DoesNotExist:
+        return JsonResponse({'error': 'Invalid leave type provided.'}, status=422)
+
+    total_leaves_taken = Leaves.objects.filter(
+        user_id=request.user.id, 
+        leave_type=leave_type, 
+        status='APPROVED'
+    ).count()
+
     if total_leaves_taken >= leave_type.days:
-        return JsonResponse({'error':'You cannot apply to more ' + leave_type.name + ' leave than you have been alloted'}, status=422, safe=False)
-    newData = {
-        "user": request.user,
-        "leave_type_id": leave['leave_type'],
-        "from_date": dateRange[0],
-        "to_date": dateRange[1],
-        "reason": leave['reason'],
-    }
-    Leaves.objects.create(**newData)
-    return JsonResponse('success', safe=False)
+        return JsonResponse({'error': f'You cannot apply for more {leave_type.name} leave than you have been allotted.'}, status=422)
+
+    leave_record = Leaves.objects.create(
+        user=request.user,
+        leave_type=leave_type,
+        from_date=from_date,
+        to_date=to_date,
+        reason=leave_data['reason']
+    )
+
+    return JsonResponse({'success': 'Leave applied successfully.', 'leave_id': leave_record.id}, status=201)
+
 
 @never_cache
 def all(request):

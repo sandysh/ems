@@ -40,6 +40,7 @@ import DashPoints from "./components/dashboard/PointsTable.vue";
 import ProjectIndex from "./components/project/index.vue";
 import TaskIndex from "./components/task/index.vue";
 import SettingsIndex from "./components/settings/index.vue";
+import PollIndex from "./components/poll/index.vue";
 const app = createApp({
   components: {
     ExampleComponent,
@@ -54,6 +55,7 @@ const app = createApp({
     ProjectIndex,
     TaskIndex,
     SettingsIndex,
+    PollIndex,
   },
   data() {
     return {};

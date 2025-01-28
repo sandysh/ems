@@ -75,6 +75,9 @@ INSTALLED_APPS = [
     'leaves_types.apps.LeavesTypesConfig',
     'worklog.apps.WorkLogConfig',
     'settings.apps.SettingsConfig',
+    'poll.apps.PollConfig',
+    'poll_options.apps.PollOptionsConfig',
+    'poll_stats.apps.PollStatsConfig',
 ]
 
 MIDDLEWARE = [
