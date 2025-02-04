@@ -9,25 +9,29 @@ from django.contrib.auth.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model=User
-        fields=['first_name', 'last_name', ]
+        fields=['id','first_name', 'last_name', ]
+
+
+class PollOptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=PollOptions
+        fields=['id','poll_options']
+
+class PollStatsSerializer(serializers.ModelSerializer):
+    user=UserSerializer(read_only=True)
+    voted_on=serializers.SerializerMethodField()
+    class Meta:
+        model=PollStats
+        fields=['id','user','voted_on']
+
+    def get_voted_on(self,obj):
+        return {'id':obj.option.id,'option':obj.option.poll_options}
 
 class PollSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
-    updated_at = serializers.DateTimeField(read_only=True)
+    options=PollOptionsSerializer(many=True,read_only=True)
+    stats=PollStatsSerializer(many=True,read_only=True)
     class Meta:
         model=Poll
-        fields=['id','name', 'description', 'created_by','created_at','updated_at']
-
-class PollOptionsSerializer(serializers.ModelSerializer):
-    poll=PollSerializer()
-    class Meta:
-        model=PollOptions
-        fields=['id','poll','poll_options']
-
-class PollStatsSerializer(serializers.ModelSerializer):
-    poll=PollSerializer()
-    option=PollOptionsSerializer()
-    class Meta:
-        model=PollStats
-        fields=['id','poll','option']
+        fields=['id','name', 'description', 'created_by','created_at','status','options','stats']
