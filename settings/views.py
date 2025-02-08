@@ -45,9 +45,13 @@ def set_punch_in_time(data):
 #     values=setting.values.split("-")[0]
 #     return values
 def get_working_hours():
-    setting=Settings.objects.get(name="working_hours")
-    working_hours=parse_duration(setting.values)
-    return working_hours
+    setting=Settings.objects.filter(name="working_hours").first()
+    if setting:
+        working_hours=parse_duration(setting.values)
+        return working_hours
+    else:
+        return 6
+    
 def get_working_days():
     setting=Settings.objects.get(name="working_days")
     return setting.values

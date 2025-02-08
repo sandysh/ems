@@ -143,6 +143,9 @@ def parse_time(time_str:str):
 
 
 def parse_duration(duration_str:str):
-    hour,minutes=map(int,duration_str.split(':'))
-    return timedelta(hours=hour,minutes=minutes)
+    if ":" in duration_str:
+        hour, minute = map(int, duration_str.split(":"))
+    else:
+        hour, minute = int(duration_str), 0
+    return timedelta(hours=hour,minutes=minute)
     
