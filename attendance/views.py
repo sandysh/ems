@@ -76,7 +76,7 @@ def index(request):
     }
 
     template = "attendance/admin/index.html" if request.user.is_superuser else "attendance/user/index.html"
-
+    print(check_punch_in)
     return render(request, template, context)
 
 

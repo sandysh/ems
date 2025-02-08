@@ -14,8 +14,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch,onMounted } from "vue";
 import { defineProps } from "vue";
+
+const moment=require('moment');
 
 const props = defineProps({
   editableSetting: {
@@ -31,8 +33,9 @@ watch(
   () => props.editableSetting,
   (newSetting) => {
     const values = newSetting.values ? newSetting.values.split("-") : ["", ""];
-    start.value = values[0].split(" ")[0];
-    finish.value = values[1].split(" ")[0];
+    console.log(values);
+    start.value = moment(values[0],'hh:mm A').format('HH:mm')
+    finish.value = moment(values[1],'hh:mm A').format('HH:mm')
   },
   { immediate: true }
 );

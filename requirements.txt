@@ -1,6 +1,6 @@
 asgiref==3.8.1
 Django==5.0.6
-django-easy-validation==0.1
+
 django-rest-framework==0.1.0
 djangorestframework==3.15.1
 pendulum==3.0.0
