@@ -4,7 +4,7 @@ from serializers import settings_serializers
 from django.http import JsonResponse,HttpResponse,response
 import json
 from helpers.general import *
-# Create your views here.
+# Create your views here1
 def index(request):
     return render(request,'settings/index.html')
 
