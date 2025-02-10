@@ -50,7 +50,7 @@ def get_working_hours():
         working_hours=parse_duration(setting.values)
         return working_hours
     else:
-        return 6
+        return parse_duration("6:30")
     
 def get_working_days():
     setting=Settings.objects.get(name="working_days")
