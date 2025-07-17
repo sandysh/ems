@@ -15,23 +15,16 @@ class LeavesTypesSerializer(serializers.ModelSerializer):
 
 class LeavesSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)  
-    leave_type = serializers.PrimaryKeyRelatedField(queryset=LeavesTypes.objects.all()) 
-    # reason = serializers.CharField(
-    #     required=True, 
-    #     allow_blank=False, 
-    #     error_messages={'blank': 'Reason Field is required'}
-    # )
-    # from_date = serializers.DateField(
-    #     required=True, 
-    #     error_messages={'blank': "From Date Field is required"}
-    # )
-    # to_date = serializers.DateField(
-    #     required=False, 
-    # )
+    leave_type = LeavesTypesSerializer(read_only=True)  # Change this line
+    leave_type_id = serializers.PrimaryKeyRelatedField(
+        queryset=LeavesTypes.objects.all(), 
+        source='leave_type', 
+        write_only=True
+    )
 
     class Meta:
         model = Leaves
-        fields = ['id', 'from_date', 'to_date', 'reason', 'user', 'leave_type', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'from_date', 'to_date', 'reason', 'user', 'leave_type', 'leave_type_id', 'status', 'created_at', 'updated_at']
         extra_kwargs = {
             'reason': {
                 'required': True,

@@ -119,8 +119,9 @@
                                 <div class="form-group">
                                   <select v-model="leavesStore.filter.status" class="form-select" id="exampleFormControlSelect1">
                                     <option value="all">All</option>
+                                    <option value="PENDING_SUPERVISOR">Pending Supervisor</option>
                                     <option value="APPROVED">Approved</option>
-                                    <option value="PENDING">Pending</option>
+                                    <option value="PENDING_ADMIN">Pending Admin</option>
                                     <option value="REJECTED">Rejected</option>
                                     <option value="CANCELLED">Cancelled</option>
                                   </select>
@@ -131,62 +132,63 @@
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
                             <table class="table align-items-center justify-content-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">User</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Type</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">From</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">To</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Reason</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="leave in leavesStore.list" :key="leave.id">
-                                    <td>
-                                        <div class="d-flex px-2">
-                                          <div class="my-auto">
-                                              <h6 class="mb-0 text-sm text-capitalize">{{ leave.user.first_name }}</h6>
-                                          </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex px-2">
-                                          <div class="my-auto">
-                                              <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type.name }}</h6>
-                                          </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <p class="text-sm font-weight-bold mb-0">{{ leave.from_date }}</p>
-                                    </td>
-                                    <td>
-                                        <span class="text-sm font-weight-bold">{{ leave.to_date }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="text-sm font-weight-bold">{{ leave.reason }}</span>
-                                    </td>
-                                    <td>
-                                        <select v-if="leave.status !== 'CANCELLED'" v-model="leave.status" @change="updateStatus(leave)" class="form-select" id="exampleFormControlSelect1">
-                                          <option value="APPROVED">Approved</option>
-                                          <option value="PENDING">Pending</option>
-                                          <option value="REJECTED">Rejected</option>
-                                          <option value="CANCELLED">Cancelled</option>
-                                        </select>
-                                      <label v-else for="">{{ leave.status }}</label>
-                                    </td>
-
-                                    <td class="">
-                                        <button @click="edit(leave)" class="btn btn-success btn-xs m-2">
-                                            <i class="fa fa-edit"></i>
-                                        </button>
-                                        <button @click="cancel(leave)" class="btn btn-danger btn-xs m-2" :class="{'disabled': leave.status == 'CANCELLED'}">
-                                            <i class="fa fa-close"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">User</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Type</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">From</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">To</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Reason</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Status</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="leave in leavesStore.list" :key="leave.id">
+                                        <td>
+                                            <div class="d-flex px-2">
+                                              <div class="my-auto">
+                                                  <h6 class="mb-0 text-sm text-capitalize">{{ leave.user.first_name }}</h6>
+                                              </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex px-2">
+                                              <div class="my-auto">
+                                                  <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type.name }}</h6>
+                                              </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="text-sm font-weight-bold mb-0">{{ leave.from_date }}</p>
+                                        </td>
+                                        <td>
+                                            <span class="text-sm font-weight-bold">{{ leave.to_date }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-sm font-weight-bold">{{ leave.reason }}</span>
+                                        </td>
+                                        <td>
+                                            <span v-if="leave.status=='PENDING_SUPERVISOR'" class="badge bg-gradient-warning">Pending</span>
+                                            <span v-if="leave.status=='APPROVED_BY_SUPERVISOR'" class="badge bg-gradient-warning">Approved By Supervisor</span>
+                                            <span v-else-if="leave.status=='APPROVED'" class="badge bg-gradient-success">Approved</span>
+                                            <span v-else-if="leave.status=='PENDING_ADMIN'" class="badge bg-gradient-info">Pending Admin</span>
+                                            <span v-else-if="leave.status=='REJECTED'" class="badge bg-gradient-danger">Rejected</span>
+                                            <span v-else-if="leave.status=='CANCELLED'" class="badge bg-gradient-secondary">Cancelled</span>
+                                        </td>
+                                        <td class="">
+                                            <div v-if="leave.status === 'APPROVED_BY_SUPERVISOR'|| leave.status === 'PENDING_ADMIN'" class="d-flex gap-1">
+                                                <button @click="approveLeave(leave)" class="btn btn-success btn-xs">
+                                                    <i class="fa fa-check"></i> Approve
+                                                </button>
+                                                <button @click="rejectLeave(leave)" class="btn btn-danger btn-xs">
+                                                    <i class="fa fa-times"></i> Reject
+                                                </button>
+                                            </div>
+                                            <span v-else>-</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -194,32 +196,71 @@
                 <pagination @updatePageNumber="updatePageNumber" :pagination="leavesStore.pagination"></pagination>
             </div>
         </div>
-        <Transition>
-            <add-edit-leaves v-if="leavesStore.showLeavesForm"></add-edit-leaves>
-        </Transition>
     </div>
-
 </template>
 
 <script setup>
-import { onMounted, reactive, watch } from 'vue';
-import AddEditLeaves  from './AddEditLeaves.vue'
+import { onMounted } from 'vue';
 import { leavesStore } from '../../store/leavesStore';
+import { put } from '../../kit';
 import Swal from 'sweetalert2';
 import pagination from '../pagination.vue';
 
-watch(leavesStore.filter, async (newFilter, oldFilter) => {
-  await leavesStore.getMyLeaves()
-  await leavesStore.getStats()
-})
-
-function showForm(){
-    leavesStore.showLeavesForm = true
+function approveLeave(leave) {
+    Swal.fire({
+        title: 'Approve Leave',
+        text: 'Add a comment (optional):',
+        input: 'textarea',
+        inputPlaceholder: 'Enter your comment...',
+        showCancelButton: true,
+        confirmButtonText: 'Approve',
+        confirmButtonColor: '#28a745',
+        cancelButtonText: 'Cancel'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const response = await put(`${leave.id}/update/status`, {
+                status: 'APPROVED',
+                comment: result.value || ''
+            });
+            
+            if (response.status === 200) {
+                Swal.fire('Approved!', 'Leave has been approved.', 'success');
+                leavesStore.getMyLeaves();
+                leavesStore.getStats();
+            }
+        }
+    });
 }
 
-function updateStatus(leave)
-{
-  leavesStore.updateStatus(leave)
+function rejectLeave(leave) {
+    Swal.fire({
+        title: 'Reject Leave',
+        text: 'Please provide a reason for rejection:',
+        input: 'textarea',
+        inputPlaceholder: 'Enter reason for rejection...',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Please provide a reason for rejection';
+            }
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Reject',
+        confirmButtonColor: '#dc3545',
+        cancelButtonText: 'Cancel'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const response = await put(`${leave.id}/update/status`, {
+                status: 'REJECTED',
+                comment: result.value
+            });
+            
+            if (response.status === 200) {
+                Swal.fire('Rejected!', 'Leave has been rejected.', 'info');
+                leavesStore.getMyLeaves();
+                leavesStore.getStats();
+            }
+        }
+    });
 }
 
 function updatePageNumber(page){
@@ -227,45 +268,8 @@ function updatePageNumber(page){
   leavesStore.getMyLeaves()
 }
 
-function edit(leave) {
-    leavesStore.showLeavesForm = true
-    leavesStore.form = leave
-    leavesStore.form.leave_date = leave.from_date + " to "  + leave.to_date
-}
-
-function cancel(leave){
-        Swal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        cancelButtonText: 'Nope',
-        confirmButtonText: "Yes, cancel this leave!"
-        }).then(async (result) => {
-        if (result.isConfirmed) {
-            let response = await put(leave.id + '/update/status',{status: "CANCELLED"})
-            leavesStore.getMyLeaves()
-            if(response.status === 200) {
-                Swal.fire({
-                title: "Cancelled!",
-                text: "Your leave has been cancelled.",
-                icon: "success"
-                });
-            }
-        }
-        });
-}
-
-// async function getMyLeaves() {
-//     let response = await post('all')
-//     leavesStore.list = response.data
-// }
-
 onMounted(() => {
-    leavesStore.getStats()
-    leavesStore.getMyLeaves()
-})
-
+    leavesStore.getStats();
+    leavesStore.getMyLeaves();
+});
 </script>

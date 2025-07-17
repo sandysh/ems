@@ -175,12 +175,19 @@
                                     <td>
                                         <div class="d-flex px-2">
                                         <div class="my-auto">
-                                            <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type.name }}</h6>
+                                            <h6 class="mb-0 text-sm text-capitalize">{{ leave.leave_type.name || 'N/A' }}</h6>
                                         </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <p class="text-sm font-weight-bold mb-0">{{ leave.created_at }}</p>
+                                        <p class="text-sm font-weight-bold mb-0">{{ new Date(leave.created_at).toLocaleString('en-US', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                hour12: true
+                                            }) }}</p>
                                     </td>
                                     <td>
                                         <p class="text-sm font-weight-bold mb-0">{{ leave.from_date }}</p>
@@ -194,12 +201,13 @@
                                     <td>
                                         <span v-if="leave.status=='APPROVED'" class="badge bg-gradient-success">{{ leave.status }}</span>
                                         <span v-if="leave.status=='PENDING'" class="badge bg-gradient-info">{{ leave.status }}</span>
+                                        <span v-if="leave.status=='PENDING_SUPERVISOR' || leave.status=='PENDING_ADMIN'" class="badge bg-gradient-info">PENDING</span>
                                         <span v-if="leave.status=='REJECTED'" class="badge bg-gradient-danger">{{ leave.status }}</span>
                                         <span v-if="leave.status=='CANCELLED'" class="badge bg-gradient-warning">{{ leave.status }}</span>
                                     </td>
                                     
                                     <td class="">
-                                      <span v-if="leave.status==='PENDING'">
+                                      <span v-if="leave.status==='PENDING_SUPERVISOR'">
                                          <button @click="edit(leave)" class="btn btn-success btn-xs m-2">
                                             <i class="fa fa-edit"></i>
                                         </button>

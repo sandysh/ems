@@ -9,3 +9,6 @@ class LeavesTypes(models.Model):
 
     class Meta:
         db_table = 'leaves_types'
+
+    def __str__(self):
+        return self.name

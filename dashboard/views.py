@@ -31,16 +31,27 @@ def stats(request):
     return JsonResponse({"data":context}, safe=False)
 
 def points(request):
+    period = request.GET.get('period', 'weekly')
     dt = pendulum.now()
-    start_of_week = dt.start_of('week')
-    end_of_week = dt.end_of('week')
+    
+    if period == 'weekly':
+        start_date = dt.start_of('week').date()
+        end_date = dt.end_of('week').date()
+    else:  # monthly
+        start_date = dt.start_of('month').date()
+        end_date = dt.end_of('month').date()
 
     users_all = User.objects.filter(is_staff=False,)
     users =  UserSerializer(users_all, many=True).data
     rate = Rate.objects.select_related().all()
     metrices = Metrices.objects.all()
-    ratings = Rate.objects.all()[:10]
+    
+    # Filter ratings by date range using pub_date 
+    ratings = Rate.objects.filter(
+        pub_date__range=[start_date, end_date]
+    )[:10]
     ratings =  RatingSerializer(ratings, many=True).data
+    
     context = {
         "metrices": list(metrices.values()),
         "users": users,

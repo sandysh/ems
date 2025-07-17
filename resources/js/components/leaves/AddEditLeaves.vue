@@ -15,7 +15,7 @@
                         <form role="form text-left">
                         <label>Type</label>
                         <div class="input-group mb-3">
-                            <select v-model="leavesStore.form.leave_type" class="form-select" name="leave_type" id="" required>
+                            <select v-model="leavesStore.form.leave_type_id" class="form-select" name="leave_type" id="" required>
                                 <option v-for="(type,t) in leavesTypesStores.list" :value="type.id" :key="t">{{ type.name }}</option>
                             </select>
                         </div>
@@ -27,6 +27,7 @@
                         <div class="input-group">
                             <textarea v-model="leavesStore.form.reason" class="form-control" name="" id="" required></textarea>
                         </div>
+                        
                         <div class="text-center">
                             <button @click="leavesStore.form.id ? update() : submit()" type="button" class="btn btn-success m-4">Apply</button>
                             <button @click="cancel" type="button" class="btn btn-danger m-4">Cancel</button>

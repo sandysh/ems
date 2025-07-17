@@ -16,3 +16,5 @@ def has_group_permission(user,permission_codename):
         return group and group.permissions.filter(id=permission.id).exists()
     except (Group.DoesNotExist, Permission.DoesNotExist, ValueError):
         return False
+
+

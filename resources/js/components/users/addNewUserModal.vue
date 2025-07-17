@@ -1,5 +1,5 @@
 <template>
-  <div class="col-md-12 col-lg-6">
+  <div class="col-md-12 col-lg-6 offset-lg-12">
     <div class="modal fade show" style="display: block" id="modal-form" tabindex="-1" aria-modal="true" role="dialog"
       aria-labelledby="modal-form" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">

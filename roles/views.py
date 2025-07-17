@@ -41,7 +41,7 @@ def update_role(user, group_id):
 
 @login_required
 def add_role(request):
-    permissions = Permission.objects.all()
+    permissions = Permission.objects.all()  
 
     if request.method == 'POST':
         group_name = request.POST.get('name')

@@ -14,6 +14,11 @@ from helpers.general import make_pagination, make_serialized_pagination, dateMak
 from leaves_types.models import LeavesTypes
 from serializers.leaves_serializers import LeavesSerializer
 from array import array
+from django.core.mail import send_mail
+from django.contrib.auth.models import User, Group
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 def index(request):
     return render(request, "leaves/index.html")
@@ -21,19 +26,14 @@ def index(request):
 @never_cache
 @require_http_methods('POST')
 @login_required
-
 def store(request):
-
     try:
         leave_data = json.loads(request.body)
+        print("Received data:", leave_data)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON format'}, status=400)
 
-    leave_serializer = LeavesSerializer(data=leave_data)
-    if not leave_serializer.is_valid():
-        return JsonResponse(leave_serializer.errors, status=422, safe=False)
-
- 
+    # Process date range BEFORE serializer validation
     leave_date_range = leave_data.get('leave_date_range', '')
     try:
         date_range = leave_date_range.split(" to ")
@@ -43,6 +43,20 @@ def store(request):
     except (IndexError, ValueError):
         return JsonResponse({'error': 'Invalid leave_date_range format. Expected "YYYY-MM-DD to YYYY-MM-DD".'}, status=422)
 
+    # Add processed dates to the data for serializer validation
+    leave_data['from_date'] = from_date.strftime('%Y-%m-%d')
+    leave_data['to_date'] = to_date.strftime('%Y-%m-%d')
+    
+    # Remove the range field as it's not needed by the serializer
+    leave_data.pop('leave_date_range', None)
+
+    # Now validate with the serializer
+    leave_serializer = LeavesSerializer(data=leave_data)
+    if not leave_serializer.is_valid():
+        print("Serializer errors:", leave_serializer.errors)
+        return JsonResponse(leave_serializer.errors, status=422, safe=False)
+
+    # Continue with overlap check (using the already parsed dates)
     overlapping_leaves = Leaves.objects.filter(
         user_id=request.user.id,
         from_date__lte=to_date,
@@ -66,43 +80,219 @@ def store(request):
     if total_leaves_taken >= leave_type.days:
         return JsonResponse({'error': f'You cannot apply for more {leave_type.name} leave than you have been allotted.'}, status=422)
 
+    # Get supervisor for the user
+    supervisor = None
+    try:
+        supervisor_group = Group.objects.get(name='supervisor')
+        supervisor = User.objects.filter(groups=supervisor_group).first()
+    except Group.DoesNotExist:
+        pass
+
     leave_record = Leaves.objects.create(
         user=request.user,
         leave_type=leave_type,
         from_date=from_date,
         to_date=to_date,
-        reason=leave_data['reason']
+        reason=leave_data['reason'],
+        supervisor=supervisor,
+        status='PENDING_SUPERVISOR'
     )
 
+    # Send email notification to supervisor
+    # if supervisor and supervisor.email:
+    #     subject = f'Leave Application for Review - {request.user.get_full_name() or request.user.username}'
+        
+    #     html_message = render_to_string('emails/supervisor_leave_notification.html', {
+    #         'supervisor_name': supervisor.get_full_name() or supervisor.username,
+    #         'employee_name': request.user.get_full_name() or request.user.username,
+    #         'employee_email': request.user.email,
+    #         'leave_type': leave_type.name,
+    #         'from_date': from_date.strftime('%B %d, %Y'),
+    #         'to_date': to_date.strftime('%B %d, %Y'),
+    #         'duration': (to_date - from_date).days + 1,
+    #         'reason': leave_data['reason'],
+    #     })
+        
+    #     plain_message = strip_tags(html_message)
+        
+    #     try:
+    #         send_mail(
+    #             subject,
+    #             plain_message,
+    #             settings.DEFAULT_FROM_EMAIL,
+    #             [supervisor.email],
+    #             fail_silently=False,
+    #             html_message=html_message,
+    #         )
+    #     except Exception as e:
+    #         print(f"Failed to send email notification: {e}")
+    
     return JsonResponse({'success': 'Leave applied successfully.', 'leave_id': leave_record.id}, status=201)
-
 
 @never_cache
 def all(request):
     body = json.loads(request.body)
     leaves = None
+    
     if body['range'] != "":
         range = dateMaker(body['range'])
         if range[0] and range[1]:
             if request.user.is_superuser:
-                leaves = Leaves.objects.filter(created_at__date__range=[range[0],range[1]]).order_by('-id')
+                leaves = Leaves.objects.select_related('leave_type', 'user').filter(created_at__date__range=[range[0],range[1]]).order_by('-id')
+            elif request.user.groups.filter(name='supervisor').exists():
+                leaves = Leaves.objects.select_related('leave_type', 'user').filter(supervisor=request.user, created_at__date__range=[range[0],range[1]]).order_by('-id')
             else:
-                leaves = Leaves.objects.filter(user_id=request.user.id, created_at__date__range=[range[0],range[1]]).order_by('-id')
+                leaves = Leaves.objects.select_related('leave_type', 'user').filter(user_id=request.user.id, created_at__date__range=[range[0],range[1]]).order_by('-id')
         else:
             if request.user.is_superuser:
-                leaves = Leaves.objects.filter(created_at__date=range[0]).order_by('-id')
+                leaves = Leaves.objects.select_related('leave_type', 'user').filter(created_at__date=range[0]).order_by('-id')
+            elif request.user.groups.filter(name='supervisor').exists():
+                leaves = Leaves.objects.select_related('leave_type', 'user').filter(supervisor=request.user, created_at__date=range[0]).order_by('-id')
             else:
-                leaves = Leaves.objects.filter(user_id=request.user.id,created_at__date=range[0]).order_by('-id')
+                leaves = Leaves.objects.select_related('leave_type', 'user').filter(user_id=request.user.id,created_at__date=range[0]).order_by('-id')
     else:
         if request.user.is_superuser:
-            leaves = Leaves.objects.order_by('-id')
+            leaves = Leaves.objects.select_related('leave_type', 'user').order_by('-id')
+        elif request.user.groups.filter(name='supervisor').exists():
+            leaves = Leaves.objects.select_related('leave_type', 'user').filter(supervisor=request.user).order_by('-id')
         else:
-            leaves = Leaves.objects.filter(user=request.user).order_by('-id')
+            leaves = Leaves.objects.select_related('leave_type', 'user').filter(user=request.user).order_by('-id')
 
     if body['status'] != "all":
         leaves = leaves.filter(status=body['status'])
+    
     paginated_data = make_serialized_pagination(request, leaves, LeavesSerializer)
     return JsonResponse(paginated_data, safe=False)
+
+@login_required
+def updateStatus(request, leave_id):
+    try:
+        leave_obj = Leaves.objects.get(pk=leave_id)
+        leave_data = json.loads(request.body)
+        new_status = leave_data['status']
+        comment = leave_data.get('comment', '')
+        
+        print(f"DEBUG: Leave ID: {leave_id}")
+        print(f"DEBUG: Current status: {leave_obj.status}")
+        print(f"DEBUG: New status requested: {new_status}")
+        print(f"DEBUG: User: {request.user}")
+        print(f"DEBUG: User is supervisor: {request.user.groups.filter(name='supervisor').exists()}")
+        print(f"DEBUG: Leave supervisor: {leave_obj.supervisor}")
+        print(f"DEBUG: Comment: {comment}")
+        
+        # Check permissions
+        if request.user.groups.filter(name='supervisor').exists():
+            # Supervisor can only update leaves they supervise and are pending supervisor approval
+            if leave_obj.supervisor != request.user:
+                print(f"DEBUG: Supervisor mismatch - leave supervisor: {leave_obj.supervisor}, current user: {request.user}")
+                return JsonResponse({'error': 'You can only update leaves assigned to you.'}, status=403)
+            
+            if leave_obj.status != 'PENDING_SUPERVISOR':
+                print(f"DEBUG: Status mismatch - current status: {leave_obj.status}, expected: PENDING_SUPERVISOR")
+                return JsonResponse({'error': 'This leave is not pending supervisor approval.'}, status=403)
+            
+            if new_status == 'APPROVED_BY_SUPERVISOR':
+                leave_obj.status = 'PENDING_ADMIN'
+                leave_obj.supervisor_comment = comment
+                message = 'Leave approved by supervisor'
+                print(f"DEBUG: Approving leave - new status: APPROVED")
+            elif new_status == 'REJECTED_BY_SUPERVISOR':
+                leave_obj.status = 'REJECTED'
+                leave_obj.supervisor_comment = comment
+                message = 'Leave rejected by supervisor.'
+                print(f"DEBUG: Rejecting leave - new status: REJECTED")
+                
+                # Send email to admin
+                admin_users = User.objects.filter(is_superuser=True)
+                admin_emails = [admin.email for admin in admin_users if admin.email]
+                print(f"DEBUG: Admin emails: {admin_emails}")
+                
+                if admin_emails:
+                    subject = f'Leave Application Escalated - {leave_obj.user.get_full_name() or leave_obj.user.username}'
+                    
+                    # For now, let's skip the HTML email to avoid template errors
+                    plain_message = f"""
+                    A leave application has been escalated to admin review.
+                    
+                    Employee: {leave_obj.user.get_full_name() or leave_obj.user.username}
+                    Supervisor: {request.user.get_full_name() or request.user.username}
+                    Leave Type: {leave_obj.leave_type.name}
+                    From: {leave_obj.from_date.strftime('%B %d, %Y')}
+                    To: {leave_obj.to_date.strftime('%B %d, %Y')}
+                    Reason: {leave_obj.reason}
+                    Supervisor Comment: {comment}
+                    """
+                    
+                    try:
+                        send_mail(
+                            subject,
+                            plain_message,
+                            settings.DEFAULT_FROM_EMAIL,
+                            admin_emails,
+                            fail_silently=False,
+                        )
+                        print(f"DEBUG: Email sent successfully")
+                    except Exception as e:
+                        print(f"DEBUG: Failed to send email notification: {e}")
+            else:
+                print(f"DEBUG: Invalid status for supervisor: {new_status}")
+                return JsonResponse({'error': 'Invalid status for supervisor'}, status=400)
+                
+        elif request.user.is_superuser:
+            # Admin can update leaves that are pending admin approval
+            # if leave_obj.status != 'PENDING_ADMIN':
+            #     return JsonResponse({'error': 'This leave is not pending admin approval'}, status=403)
+            
+            if new_status in ['APPROVED', 'REJECTED']:
+                leave_obj.status = new_status
+                leave_obj.admin_comment = comment
+                message = f'Leave {new_status.lower()} by admin'
+            else:
+                return JsonResponse({'error': 'Invalid status for admin'}, status=400)
+        else:
+            return JsonResponse({'error': 'You do not have permission to update this leave status'}, status=403)
+        
+        # Save the changes
+        leave_obj.save()
+        print(f"DEBUG: Leave saved with status: {leave_obj.status}")
+        
+        # Send notification email to employee (simplified)
+        if leave_obj.user.email:
+            subject = f'Leave Application Status Update - {leave_obj.status.replace("_", " ").title()}'
+            
+            plain_message = f"""
+            Your leave application status has been updated.
+            
+            Leave Type: {leave_obj.leave_type.name}
+            From: {leave_obj.from_date.strftime('%B %d, %Y')}
+            To: {leave_obj.to_date.strftime('%B %d, %Y')}
+            Status: {leave_obj.status.replace('_', ' ').title()}
+            Comment: {comment}
+            Updated by: {request.user.get_full_name() or request.user.username}
+            """
+            
+            try:
+                send_mail(
+                    subject,
+                    plain_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [leave_obj.user.email],
+                    fail_silently=False,
+                )
+                print(f"DEBUG: Employee notification sent")
+            except Exception as e:
+                print(f"DEBUG: Failed to send employee notification: {e}")
+        
+        return JsonResponse({"status": "success", "message": message}, safe=False)
+        
+    except Leaves.DoesNotExist:
+        print(f"DEBUG: Leave not found with ID: {leave_id}")
+        return JsonResponse({'error': 'Leave not found'}, status=404)
+    except Exception as e:
+        print(f"DEBUG: Error in updateStatus: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @never_cache
@@ -110,9 +300,9 @@ def all(request):
 @login_required
 def update(request, leave_id):
     leave = json.loads(request.body)
-    dateRange = leave['leave_date'].split(" to ")
+    dateRange = leave['leave_date_range'].split(" to ")  # Changed from 'leave_date' to 'leave_date_range'
     newData = {
-        "leave_type": leave['leave_type'],
+        "leave_type_id": leave['leave_type_id'],  # Changed from 'leave_type' to 'leave_type_id'
         "from_date": dateRange[0],
         "to_date": dateRange[1],
         "reason": leave['reason'],
@@ -121,11 +311,11 @@ def update(request, leave_id):
     return JsonResponse({"status": "success", "message": "Leave updated successfully"}, safe=False)
 
 
-@login_required
-def updateStatus(request, leave_id):
-    leave = json.loads(request.body)
-    Leaves.objects.filter(pk=leave_id).update(status=leave['status'])
-    return JsonResponse({"status": "success", "message": "Status updated successfully"}, safe=False)
+# @login_required
+# def updateStatus(request, leave_id):
+#     leave = json.loads(request.body)
+#     Leaves.objects.filter(pk=leave_id).update(status=leave['status'])
+#     return JsonResponse({"status": "success", "message": "Status updated successfully"}, safe=False)
 
 
 @login_required
@@ -138,9 +328,11 @@ def stats(request):
         "total_leaves_pending": 0,
         "total_leaves_approved": 0,
         "total_leaves_rejected": 0,
-        "general": {
-
-        }
+        "pending_supervisor": 0,
+        "pending_admin": 0,
+        "approved_by_supervisor": 0,
+        "escalated_to_admin": 0,
+        "general": {}
     }
 
     if request.user.is_superuser:
@@ -152,17 +344,50 @@ def stats(request):
                     status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count(),
                 "total": l['days']
             }
-            # stats['general'][name] = Leaves.objects.filter(user=request.user).filter(
-            #     status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count()
+        
         stats["total_leaves_applied"] = Leaves.objects.order_by('-id').count()
-        stats["total_leaves_pending"] = Leaves.objects.filter(status='PENDING').order_by(
-            '-id').count()
+        stats["total_leaves_pending"] = Leaves.objects.filter(
+            status__in=['PENDING_SUPERVISOR', 'PENDING_ADMIN']
+        ).order_by('-id').count()
         stats["total_leaves_approved"] = Leaves.objects.filter(
             status='APPROVED').order_by('-id').count()
         stats["total_leaves_rejected"] = Leaves.objects.filter(
             status='REJECTED').order_by('-id').count()
+        
+        # Admin specific stats
+        stats["pending_admin"] = Leaves.objects.filter(status='PENDING_ADMIN').count()
+        stats["pending_supervisor"] = Leaves.objects.filter(status='PENDING_SUPERVISOR').count()
+        
+    elif request.user.groups.filter(name='supervisor').exists():
+        # Supervisor specific stats
+        supervised_leaves = Leaves.objects.filter(supervisor=request.user)
+        
+        for i, l in enumerate(generalLeaves):
+            name = l['name']
+            stats['general'][i] = {
+                "name": name,
+                "approved": supervised_leaves.filter(
+                    status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count(),
+                "total": l['days']
+            }
+        
+        stats["total_leaves_applied"] = supervised_leaves.order_by('-id').count()
+        stats["total_leaves_pending"] = supervised_leaves.filter(
+            status='PENDING_SUPERVISOR'
+        ).order_by('-id').count()
+        stats["total_leaves_approved"] = supervised_leaves.filter(
+            status='APPROVED').order_by('-id').count()
+        stats["total_leaves_rejected"] = supervised_leaves.filter(
+            status='REJECTED').order_by('-id').count()
+        
+        # Supervisor specific stats
+        stats["pending_supervisor"] = supervised_leaves.filter(status='PENDING_SUPERVISOR').count()
+        stats["approved_by_supervisor"] = supervised_leaves.filter(status='APPROVED').count()
+        stats["escalated_to_admin"] = supervised_leaves.filter(status='PENDING_ADMIN').count()
+        
     else:
-        for i,l in enumerate(generalLeaves):
+        # Employee stats
+        for i, l in enumerate(generalLeaves):
             name = l['name']
             stats['general'][i] = {
                 "name": name,
@@ -170,13 +395,14 @@ def stats(request):
                      status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count(),
                 "total": l['days']
             }
-            # stats['general'][name] = Leaves.objects.filter(user=request.user).filter(
-            #     status='APPROVED').filter(leave_type_id=l['id']).order_by('-id').count()
+        
         stats["total_leaves_applied"] = Leaves.objects.filter(user=request.user).order_by('-id').count()
-        stats["total_leaves_pending"] = Leaves.objects.filter(user=request.user).filter(status='PENDING').order_by(
-            '-id').count()
+        stats["total_leaves_pending"] = Leaves.objects.filter(user=request.user).filter(
+            status__in=['PENDING_SUPERVISOR', 'PENDING_ADMIN']
+        ).order_by('-id').count()
         stats["total_leaves_approved"] = Leaves.objects.filter(user=request.user).filter(
             status='APPROVED').order_by('-id').count()
         stats["total_leaves_rejected"] = Leaves.objects.filter(user=request.user).filter(
             status='REJECTED').order_by('-id').count()
-    return JsonResponse(stats,safe=True)
+    
+    return JsonResponse(stats, safe=True)

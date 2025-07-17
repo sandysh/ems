@@ -10,7 +10,17 @@ ENV PYTHONUNBUFFERED 1
 # Set work directory
 WORKDIR /app
 
-# Install dependencies
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 (optional, if you need specific version)
+# RUN curl -sL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs
+
+# Install Python dependencies
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -22,9 +32,3 @@ EXPOSE 8000
 
 # Run the Django development server
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "employee_rating.wsgi:application"]
-
-RUN apt -y update
-RUN apt install -y curl
-RUN curl -sL https://deb.nodesource.com/setup_20.x -o nodesource_setup.sh
-RUN apt install -y nodejs
-RUN apt install -y npm

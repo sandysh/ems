@@ -41,6 +41,8 @@ import ProjectIndex from "./components/project/index.vue";
 import TaskIndex from "./components/task/index.vue";
 import SettingsIndex from "./components/settings/index.vue";
 import PollIndex from "./components/poll/index.vue";
+import SupervisorLeavesIndex from "./components/leaves/SupervisorLeavesIndex.vue"
+
 const app = createApp({
   components: {
     ExampleComponent,
@@ -56,6 +58,7 @@ const app = createApp({
     TaskIndex,
     SettingsIndex,
     PollIndex,
+    SupervisorLeavesIndex,
   },
   data() {
     return {};

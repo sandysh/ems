@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'poll.apps.PollConfig',
     'poll_options.apps.PollOptionsConfig',
     'poll_stats.apps.PollStatsConfig',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -165,3 +166,18 @@ MEDIA_URL = '/media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL='/controller/login/'
+    
+
+
+
+# Email settings
+
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
+EMAIL_HOST =os.getenv('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD') # Not your Gmail login password
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+
+

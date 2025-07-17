@@ -24,6 +24,7 @@ export const leavesStore = reactive({
 
     async getMyLeaves() {
         let response = await post(`all?page=${this.current_page}`, this.filter)
+         console.log('API Response:', response.data) 
         this.list = response.data.data
         this.pagination = response.data.pagination
     },
