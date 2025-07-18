@@ -19,6 +19,7 @@ from helpers.general import make_pagination,make_serialized_pagination
 from django.http import HttpResponse
 from serializers.users_serializers import UserSerializer
 from roles.views import update_role
+from userprofile.models import UserProfile
 # Create your views here.
 
 @login_required
@@ -53,12 +54,20 @@ def store(request):
         "email": data['email'],
         "is_active": data['is_active'],
         "first_name": data['first_name'],
+        
     }
     data['password'] = make_password(data['password'])
     user = User.objects.create(**newData)
     group_id=int(data['group'])
     group = Group.objects.get(id=group_id) if group_id else Group.objects.filter(name="User").first()
     user.groups.add(group)
+
+     # Update supervisor in UserProfile
+    supervisor_id = data.get('supervisor_id')
+    profile, _ = UserProfile.objects.get_or_create(user=user)
+    profile.supervisor_id = supervisor_id
+    profile.save()
+
     return response(user)
     # return response(request.POST.get('first_name'))
 
@@ -131,6 +140,9 @@ def update(request, user_id):
     user = User.objects.get(id=user_id)
     group_id=int(data['groups'])
     update_role(user,group_id)
+
+
+
     return response(user)
 
 @login_required
@@ -159,3 +171,14 @@ def all_users(request):
     group=Group.objects.get(id=group_id)
     if user and group:
         user.groups.add(group)
+
+
+@login_required
+def supervisors(request):
+    """Get all users with supervisor role"""
+    try:
+        supervisor_group = Group.objects.get(name='supervisor')
+        supervisors = User.objects.filter(groups=supervisor_group).values('id', 'first_name', 'last_name', 'email')
+        return JsonResponse(list(supervisors), safe=False)
+    except Group.DoesNotExist:
+        return JsonResponse([], safe=False)

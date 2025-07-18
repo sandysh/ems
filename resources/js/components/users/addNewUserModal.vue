@@ -123,6 +123,7 @@ function submit() {
         username: "",
         password: "",
         group: "",
+        supervisor_id: "",
         is_superuser: false,
         is_active: true,
       };
@@ -143,6 +144,7 @@ function cancel() {
     username: "",
     password: "",
     group: "",
+    supervisor_id: "",
     is_superuser: false,
     is_active: true,
   };
@@ -151,14 +153,10 @@ function cancel() {
 
 function getUsers() {
   axios
-    .get(
-      `all?paginate=true&page=${users.pagination.page ? users.pagination.page : 1
-      }`
-    )
+    .get("supervisors/")
     .then((response) => {
-      users.list = response.data.data;
+      users.list = response.data;
       console.log(users.list);
-      users.pagination = response.data.pagination;
     });
 }
 

@@ -17,4 +17,6 @@ urlpatterns = [
     path("update/<int:user_id>/status",views.updateUserStatus, name="updateUserStatus"),
 
     path("all-users/", views.all_users, name="allUsers"),
+
+    path("supervisors/", views.supervisors, name="supervisors"),
 ]
