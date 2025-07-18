@@ -207,7 +207,7 @@
                                     </td>
                                     
                                     <td class="">
-                                      <span v-if="leave.status==='PENDING_SUPERVISOR'">
+                                      <span v-if="leave.status === 'PENDING_SUPERVISOR' || (leave.status === 'PENDING_ADMIN' && leave.leave_days > 2)">
                                          <button @click="edit(leave)" class="btn btn-success btn-xs m-2">
                                             <i class="fa fa-edit"></i>
                                         </button>

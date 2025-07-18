@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'userprofile.apps.UserprofileConfig',
     'project.apps.ProjectConfig',
     'task.apps.TaskConfig',
+    'logs.apps.LogsConfig',
     'rest_framework',
     'leaves_types.apps.LeavesTypesConfig',
     'worklog.apps.WorkLogConfig',

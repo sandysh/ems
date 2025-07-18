@@ -24,7 +24,7 @@ class LeavesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Leaves
-        fields = ['id', 'from_date', 'to_date', 'reason', 'user', 'leave_type', 'leave_type_id', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'from_date', 'to_date','leave_days', 'reason', 'user', 'leave_type', 'leave_type_id', 'status', 'created_at', 'updated_at']
         extra_kwargs = {
             'reason': {
                 'required': True,

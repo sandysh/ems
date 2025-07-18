@@ -115,7 +115,8 @@
                                             <span v-if="leave.status=='PENDING_SUPERVISOR'" class="badge bg-gradient-warning">Pending Review</span>
                                             <span v-else-if="leave.status=='APPROVED'" class="badge bg-gradient-success">Approved</span>
                                             <span v-else-if="leave.status=='APPROVED_BY_SUPERVISOR'" class="badge bg-gradient-success">Approved</span>
-                                            <span v-else-if="leave.status=='PENDING_ADMIN'" class="badge bg-gradient-info">Rejected</span>
+                                            <span v-else-if="leave.status=='REJECTED'" class="badge bg-gradient-info">Rejected</span>
+                                            <span v-else-if="leave.status=='PENDING_ADMIN'" class="badge bg-gradient-info">Awaiting Admin Approval</span>
                                             <span v-else class="badge bg-gradient-secondary">{{ leave.status }}</span>
                                         </td>
                                         <td>

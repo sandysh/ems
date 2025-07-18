@@ -23,6 +23,17 @@ from django.utils.html import strip_tags
 def index(request):
     return render(request, "leaves/index.html")
 
+@login_required
+def supervisors(request):
+    """Get all users with supervisor role"""
+    try:
+        supervisor_group = Group.objects.get(name='supervisor')
+        supervisors = User.objects.filter(groups=supervisor_group).values('id', 'first_name', 'last_name', 'email')
+        return JsonResponse(list(supervisors), safe=False)
+    except Group.DoesNotExist:
+        return JsonResponse([], safe=False)
+    
+
 @never_cache
 @require_http_methods('POST')
 @login_required
@@ -67,7 +78,7 @@ def store(request):
         return JsonResponse({'error': 'You already have leaves either pending or approved for the applied dates.'}, status=422)
 
     try:
-        leave_type = LeavesTypes.objects.get(id=leave_data['leave_type'])
+        leave_type = LeavesTypes.objects.get(id=leave_data['leave_type_id'])
     except LeavesTypes.DoesNotExist:
         return JsonResponse({'error': 'Invalid leave type provided.'}, status=422)
 
@@ -80,13 +91,23 @@ def store(request):
     if total_leaves_taken >= leave_type.days:
         return JsonResponse({'error': f'You cannot apply for more {leave_type.name} leave than you have been allotted.'}, status=422)
 
-    # Get supervisor for the user
+    # Get selected supervisor
     supervisor = None
-    try:
-        supervisor_group = Group.objects.get(name='supervisor')
-        supervisor = User.objects.filter(groups=supervisor_group).first()
-    except Group.DoesNotExist:
-        pass
+    if leave_data.get('supervisor_id'):
+        try:
+            supervisor = User.objects.get(id=leave_data['supervisor_id'])
+            # Verify that the selected user is actually a supervisor
+            if not supervisor.groups.filter(name='supervisor').exists():
+                return JsonResponse({'error': 'Selected user is not a supervisor.'}, status=422)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Selected supervisor not found.'}, status=422)
+    else:
+        # Fallback to first supervisor if none selected
+        try:
+            supervisor_group = Group.objects.get(name='supervisor')
+            supervisor = User.objects.filter(groups=supervisor_group).first()
+        except Group.DoesNotExist:
+            pass
 
     leave_record = Leaves.objects.create(
         user=request.user,
@@ -98,11 +119,11 @@ def store(request):
         status='PENDING_SUPERVISOR'
     )
 
-    # Send email notification to supervisor
-    # if supervisor and supervisor.email:
+    # # Send email notification to supervisor
+    # if supervisor and supervisor.email :
     #     subject = f'Leave Application for Review - {request.user.get_full_name() or request.user.username}'
         
-    #     html_message = render_to_string('emails/supervisor_leave_notification.html', {
+    #     html_message = render_to_string('emails/leave_application.html', {
     #         'supervisor_name': supervisor.get_full_name() or supervisor.username,
     #         'employee_name': request.user.get_full_name() or request.user.username,
     #         'employee_email': request.user.email,
@@ -207,7 +228,7 @@ def updateStatus(request, leave_id):
                 admin_emails = [admin.email for admin in admin_users if admin.email]
                 print(f"DEBUG: Admin emails: {admin_emails}")
                 
-                if admin_emails:
+                if admin_emails and new_status == 'PENDING_ADMIN':
                     subject = f'Leave Application Escalated - {leave_obj.user.get_full_name() or leave_obj.user.username}'
                     
                     # For now, let's skip the HTML email to avoid template errors
@@ -300,16 +321,31 @@ def updateStatus(request, leave_id):
 @login_required
 def update(request, leave_id):
     leave = json.loads(request.body)
-    dateRange = leave['leave_date_range'].split(" to ")  # Changed from 'leave_date' to 'leave_date_range'
+    dateRange = leave['leave_date_range'].split(" to ")
+    
+    # Get supervisor if provided
+    supervisor = None
+    if leave.get('supervisor_id'):
+        try:
+            supervisor = User.objects.get(id=leave['supervisor_id'])
+            if not supervisor.groups.filter(name='supervisor').exists():
+                return JsonResponse({'error': 'Selected user is not a supervisor.'}, status=422)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Selected supervisor not found.'}, status=422)
+    
     newData = {
-        "leave_type_id": leave['leave_type_id'],  # Changed from 'leave_type' to 'leave_type_id'
+        "leave_type_id": leave['leave_type_id'],
         "from_date": dateRange[0],
         "to_date": dateRange[1],
         "reason": leave['reason'],
     }
+    
+    # Add supervisor if provided
+    if supervisor:
+        newData['supervisor'] = supervisor
+    
     Leaves.objects.filter(pk=leave_id).update(**newData)
     return JsonResponse({"status": "success", "message": "Leave updated successfully"}, safe=False)
-
 
 # @login_required
 # def updateStatus(request, leave_id):

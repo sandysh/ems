@@ -16,7 +16,15 @@
                         <label>Type</label>
                         <div class="input-group mb-3">
                             <select v-model="leavesStore.form.leave_type_id" class="form-select" name="leave_type" id="" required>
+                                <option value="">Select Leave Type</option>
                                 <option v-for="(type,t) in leavesTypesStores.list" :value="type.id" :key="t">{{ type.name }}</option>
+                            </select>
+                        </div>
+                        <label>Supervisor</label>
+                        <div class="input-group mb-3">
+                            <select v-model="leavesStore.form.supervisor_id" class="form-select" name="supervisor" required>
+                                <option value="">Select Supervisor</option>
+                                <option v-for="(supervisor,s) in supervisorsStore.list" :value="supervisor.id" :key="s">{{ supervisor.first_name }} {{ supervisor.last_name }}</option>
                             </select>
                         </div>
                         <label>Date</label>
@@ -47,6 +55,7 @@ import {onMounted,watch} from 'vue';
 import { get, post, put, notify } from '../../kit.js';
 import { leavesStore} from '../../store/leavesStore';
 import { leavesTypesStores } from "../../store/leavesTypesStore";
+import { supervisorsStore } from "../../store/supervisorsStore";
 import {errorsStore} from "../../store/errorStore";
 import { successMessage } from "../../store/messageStore";
 import moment from "moment";
@@ -61,13 +70,15 @@ watch(leavesStore.form, async() => {
 
 async function submit() {
     let response = await post('store',leavesStore.form)
-    if (response && response.data == 'success') {
+    // Check for successful response status and the success property
+    if (response && (response.status === 201 || response.data.success)) {
         successMessage('Leave applied successfully')
         leavesStore.showLeavesForm = false
         leavesStore.form = {
-            "leave_type": '',
+            "leave_type_id": '',
             "leave_date_range": '',
             "reason": '',
+            "supervisor_id": '',
         }
         leavesStore.getMyLeaves()
         leavesStore.getStats()
@@ -81,9 +92,10 @@ async function update() {
         successMessage('Leave updated')
         leavesStore.showLeavesForm = false
         leavesStore.form = {
-            "leave_type": '',
+            "leave_type_id": '',
             "leave_date_range": '',
             "reason": '',
+            "supervisor_id": '',
         }
         leavesStore.getMyLeaves()
     }
@@ -92,20 +104,20 @@ async function update() {
 function cancel() {
     leavesStore.showLeavesForm = false
     leavesStore.form = {
-        "leave_type": '',
+        "leave_type_id": '',
         "leave_date_range": '',
         "reason": '',
+        "supervisor_id": '',
     }
     errorsStore.list = {}
     errorsStore.show = false
 }
 
 onMounted(() => {
-  leavesTypesStores.getLeavesTypes()
+    leavesTypesStores.getLeavesTypes()
+    supervisorsStore.getSupervisors()
     flatpickr('.datepicker', {
           mode: "range"
         }); 
-
 })
-
 </script>

@@ -2,6 +2,7 @@ import {reactive, watch} from "vue";
 import {post, put} from "../kit";
 import {successMessage, failedMessage} from "../store";
 import {errorsStore} from "./errorStore";
+
 export const leavesStore = reactive({
     showLeavesForm: false,
     list: {},
@@ -9,9 +10,10 @@ export const leavesStore = reactive({
     pagination: {},
     current_page: 1,
     form: {
-        "leave_type": 1,
+        "leave_type_id": '',
         "leave_date_range": '',
         "reason": '',
+        "supervisor_id": '',
     },
     filter: {
         range: '',
