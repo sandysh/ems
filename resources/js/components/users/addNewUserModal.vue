@@ -52,6 +52,15 @@
                     </option>
                   </select>
                 </div>
+                 <div class="col-md-6 mb-3">
+                  <label for="role" class="form-label">Immediate Supervisor</label>
+                  <select v-model="data.list.supervisor_id" id="supervisor" name="supervisor" class="form-select">
+                    <option disabled value="">Select supervisor</option>
+                    <option v-for="(user, indx) in users.list" :key="user.id" :value="user.id">
+                      {{ user.first_name }} {{ user.last_name }}
+                    </option>
+                  </select>
+                </div>
                 <div class="col-md-6 mb-3 form-check form-switch">
                   <input v-model="data.list.is_superuser" id="is_superuser" name="is_superuser" class="form-check-input"
                     type="checkbox" />
@@ -81,12 +90,12 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, onMounted } from "vue";
 import { userStore, errorsStore } from "../../store";
 
 const emit = defineEmits(["refresh-table"]);
 const { props } = defineProps(["roles"]);
-
+const users = reactive({ list: {}, pagination: {} });
 const data = reactive({
   list: {
     first_name: "",
@@ -139,6 +148,23 @@ function cancel() {
   };
   userStore.showUserForm = false;
 }
+
+function getUsers() {
+  axios
+    .get(
+      `all?paginate=true&page=${users.pagination.page ? users.pagination.page : 1
+      }`
+    )
+    .then((response) => {
+      users.list = response.data.data;
+      console.log(users.list);
+      users.pagination = response.data.pagination;
+    });
+}
+
+onMounted(() => {
+  getUsers();
+});
 </script>
 
 <style scoped>
