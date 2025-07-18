@@ -19,19 +19,21 @@ from django.contrib.auth.models import User, Group
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from userprofile.models import UserProfile
+
 
 def index(request):
     return render(request, "leaves/index.html")
 
-@login_required
-def supervisors(request):
-    """Get all users with supervisor role"""
-    try:
-        supervisor_group = Group.objects.get(name='supervisor')
-        supervisors = User.objects.filter(groups=supervisor_group).values('id', 'first_name', 'last_name', 'email')
-        return JsonResponse(list(supervisors), safe=False)
-    except Group.DoesNotExist:
-        return JsonResponse([], safe=False)
+# @login_required
+# def supervisors(request):
+#     """Get all users with supervisor role"""
+#     try:
+#         supervisor_group = Group.objects.get(name='supervisor')
+#         supervisors = User.objects.filter(groups=supervisor_group).values('id', 'first_name', 'last_name', 'email')
+#         return JsonResponse(list(supervisors), safe=False)
+#     except Group.DoesNotExist:
+#         return JsonResponse([], safe=False)
     
 
 @never_cache
@@ -95,12 +97,10 @@ def store(request):
     supervisor = None
     if leave_data.get('supervisor_id'):
         try:
-            supervisor = User.objects.get(id=leave_data['supervisor_id'])
-            # Verify that the selected user is actually a supervisor
-            if not supervisor.groups.filter(name='supervisor').exists():
-                return JsonResponse({'error': 'Selected user is not a supervisor.'}, status=422)
-        except User.DoesNotExist:
-            return JsonResponse({'error': 'Selected supervisor not found.'}, status=422)
+            user_profile = UserProfile.objects.get(user=request.user)
+            supervisor = user_profile.supervisor
+        except UserProfile.DoesNotExist:
+            supervisor = None
     else:
         # Fallback to first supervisor if none selected
         try:
@@ -327,10 +327,10 @@ def update(request, leave_id):
     supervisor = None
     if leave.get('supervisor_id'):
         try:
-            supervisor = User.objects.get(id=leave['supervisor_id'])
-            if not supervisor.groups.filter(name='supervisor').exists():
-                return JsonResponse({'error': 'Selected user is not a supervisor.'}, status=422)
-        except User.DoesNotExist:
+            user_profile = UserProfile.objects.get(user=request.user)
+            supervisor = user_profile.supervisor
+        except UserProfile.DoesNotExist:
+            supervisor = None
             return JsonResponse({'error': 'Selected supervisor not found.'}, status=422)
     
     newData = {
@@ -338,6 +338,7 @@ def update(request, leave_id):
         "from_date": dateRange[0],
         "to_date": dateRange[1],
         "reason": leave['reason'],
+        "supervisor": supervisor,
     }
     
     # Add supervisor if provided

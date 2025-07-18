@@ -20,13 +20,7 @@
                                 <option v-for="(type,t) in leavesTypesStores.list" :value="type.id" :key="t">{{ type.name }}</option>
                             </select>
                         </div>
-                        <label>Supervisor</label>
-                        <div class="input-group mb-3">
-                            <select v-model="leavesStore.form.supervisor_id" class="form-select" name="supervisor" required>
-                                <option value="">Select Supervisor</option>
-                                <option v-for="(supervisor,s) in supervisorsStore.list" :value="supervisor.id" :key="s">{{ supervisor.first_name }} {{ supervisor.last_name }}</option>
-                            </select>
-                        </div>
+                       
                         <label>Date</label>
                         <div class="input-group mb-3">
                             <input required v-model="leavesStore.form.leave_date_range" class="form-control datepicker" placeholder="Please select date" type="text" onfocus="focused(this)" onfocusout="defocused(this)">
@@ -55,7 +49,7 @@ import {onMounted,watch} from 'vue';
 import { get, post, put, notify } from '../../kit.js';
 import { leavesStore} from '../../store/leavesStore';
 import { leavesTypesStores } from "../../store/leavesTypesStore";
-import { supervisorsStore } from "../../store/supervisorsStore";
+
 import {errorsStore} from "../../store/errorStore";
 import { successMessage } from "../../store/messageStore";
 import moment from "moment";
@@ -78,7 +72,7 @@ async function submit() {
             "leave_type_id": '',
             "leave_date_range": '',
             "reason": '',
-            "supervisor_id": '',
+            // "supervisor_id": '',
         }
         leavesStore.getMyLeaves()
         leavesStore.getStats()
@@ -95,7 +89,7 @@ async function update() {
             "leave_type_id": '',
             "leave_date_range": '',
             "reason": '',
-            "supervisor_id": '',
+            // "supervisor_id": '',
         }
         leavesStore.getMyLeaves()
     }
@@ -107,7 +101,7 @@ function cancel() {
         "leave_type_id": '',
         "leave_date_range": '',
         "reason": '',
-        "supervisor_id": '',
+        // "supervisor_id": '',
     }
     errorsStore.list = {}
     errorsStore.show = false
@@ -115,7 +109,7 @@ function cancel() {
 
 onMounted(() => {
     leavesTypesStores.getLeavesTypes()
-    supervisorsStore.getSupervisors()
+    // supervisorsStore.getSupervisors()
     flatpickr('.datepicker', {
           mode: "range"
         }); 

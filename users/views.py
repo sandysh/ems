@@ -36,7 +36,8 @@ def create(request):
     return render(request, "users/create.html")
 
 @never_cache
-@login_required    
+@login_required  
+@require_http_methods(["POST"])  
 def store(request):
     data = json.loads(request.body)
     serializer =UserSerializer(data=data)
@@ -58,8 +59,14 @@ def store(request):
     }
     data['password'] = make_password(data['password'])
     user = User.objects.create(**newData)
-    group_id=int(data['group'])
-    group = Group.objects.get(id=group_id) if group_id else Group.objects.filter(name="User").first()
+    try:
+        group_id = int(data['group'])
+        group = Group.objects.get(id=group_id)
+    except (KeyError, ValueError, Group.DoesNotExist):
+        group = Group.objects.filter(name="User").first()
+        if not group:
+            # Optionally, create the group if it doesn't exist
+            group = Group.objects.create(name="User")
     user.groups.add(group)
 
      # Update supervisor in UserProfile

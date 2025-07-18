@@ -13,7 +13,7 @@ export const leavesStore = reactive({
         "leave_type_id": '',
         "leave_date_range": '',
         "reason": '',
-        "supervisor_id": '',
+        // "supervisor_id": '',
     },
     filter: {
         range: '',

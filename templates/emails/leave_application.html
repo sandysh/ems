@@ -282,38 +282,38 @@
             <div class="details-card">
                 <h3>👤 Employee Information</h3>
                 <div class="detail-row">
-                    <span class="detail-label">Employee Name</span>
+                    <span class="detail-label">Employee Name: </span>
                     <span class="detail-value">{{ employee_name }}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Email Address</span>
+                    <span class="detail-label">Email Address: </span>
                     <span class="detail-value">{{ employee_email }}</span>
                 </div>
             </div>
             
             <div class="details-card">
-                <h3>📅 Leave Details</h3>
+                <h3>Leave Details</h3>
                 <div class="detail-row">
-                    <span class="detail-label">Leave Type</span>
+                    <span class="detail-label">Leave Type: </span>
                     <span class="detail-value">{{ leave_type }}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Start Date</span>
+                    <span class="detail-label">Start Date: </span>
                     <span class="detail-value">{{ from_date }}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">End Date</span>
+                    <span class="detail-label">End Date: </span>
                     <span class="detail-value">{{ to_date }}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Duration</span>
+                    <span class="detail-label">Duration: </span>
                     <span class="detail-value">
                         <span class="duration-highlight">{{ duration }} day{% if duration != 1 %}s{% endif %}</span>
                     </span>
                 </div>
                 
                 <div class="reason-section">
-                    <div class="detail-label">Reason for Leave</div>
+                    <div class="detail-label">Reason for Leave: </div>
                     <div class="reason-content">
                         "{{ reason }}"
                     </div>
