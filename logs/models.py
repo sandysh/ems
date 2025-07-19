@@ -2,29 +2,25 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.timezone import now
+import uuid
 
-
-class ActivityLog(models.Model):
-    ACTION_CHOICES = [
-        ('LEAVE_APPLIED', 'Leave Applied'),
-        ('LEAVE_APPROVED', 'Leave Approved'),
-        ('LEAVE_REJECTED', 'Leave Rejected'),
-        ('ATTENDANCE_MARKED', 'Attendance Marked'),
-        ('PROFILE_UPDATED', 'Profile Updated'),
-        ('LOGIN', 'User Logged In'),
-        ('LOGOUT', 'User Logged Out'),
-        ('ROLE_CHANGED', 'Role Changed'),
-        ('OTHER', 'Other'),
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    action = models.CharField(max_length=50, choices=ACTION_CHOICES)
-    details = models.TextField(blank=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+class ActionLog(models.Model):
+    action = models.CharField(max_length=100)
+    model = models.CharField(max_length=100)
+    action_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='actions_performed')
+    action_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='actions_received')
+    data = models.JSONField(blank=True, null=True)
+    timestamp = models.DateTimeField(default=now)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['model']),
+            models.Index(fields=['action']),
+            models.Index(fields=['timestamp']),
+        ]
 
     def __str__(self):
-        return f"[{self.created_at}] {self.user} - {self.action}"
+        return f"{self.action} on {self.model} by {self.action_by or 'System'}"
+

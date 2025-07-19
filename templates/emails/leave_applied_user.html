@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Leave Application Submitted</title>
+</head>
+<body>
+    <p>Dear {{ employee_name }},</p>
+    <p>Your leave application has been <strong>submitted</strong> successfully.</p>
+    <ul>
+        <li><strong>Leave Type:</strong> {{ leave_type }}</li>
+        <li><strong>From:</strong> {{ from_date }}</li>
+        <li><strong>To:</strong> {{ to_date }}</li>
+        <li><strong>Duration:</strong> {{ duration }} day{{ duration|pluralize }}</li>
+        <li><strong>Reason:</strong> {{ reason }}</li>
+        <li><strong>Status:</strong> {{ status }}</li>
+    </ul>
+    <p>You will be notified once your leave is reviewed.</p>
+    <p>Thank you.</p>
+</body>
+</html>

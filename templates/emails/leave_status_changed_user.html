@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Leave Application Status Update</title>
+</head>
+<body>
+    <p>Dear {{ employee_name }},</p>
+    <p>The status of your leave application has changed.</p>
+    <ul>
+        <li><strong>Leave Type:</strong> {{ leave_type }}</li>
+        <li><strong>From:</strong> {{ from_date }}</li>
+        <li><strong>To:</strong> {{ to_date }}</li>
+        <li><strong>Duration:</strong> {{ duration }} day{{ duration|pluralize }}</li>
+        <li><strong>Reason:</strong> {{ reason }}</li>
+        <li><strong>Status:</strong> {{ status }}</li>
+    </ul>
+    <p>Please check your leave portal for more details.</p>
+    <p>Thank you.</p>
+</body>
+</html>

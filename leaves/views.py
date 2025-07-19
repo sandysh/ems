@@ -25,16 +25,6 @@ from userprofile.models import UserProfile
 def index(request):
     return render(request, "leaves/index.html")
 
-# @login_required
-# def supervisors(request):
-#     """Get all users with supervisor role"""
-#     try:
-#         supervisor_group = Group.objects.get(name='supervisor')
-#         supervisors = User.objects.filter(groups=supervisor_group).values('id', 'first_name', 'last_name', 'email')
-#         return JsonResponse(list(supervisors), safe=False)
-#     except Group.DoesNotExist:
-#         return JsonResponse([], safe=False)
-    
 
 @never_cache
 @require_http_methods('POST')
@@ -119,34 +109,6 @@ def store(request):
         status='PENDING_SUPERVISOR'
     )
 
-    # # Send email notification to supervisor
-    # if supervisor and supervisor.email :
-    #     subject = f'Leave Application for Review - {request.user.get_full_name() or request.user.username}'
-        
-    #     html_message = render_to_string('emails/leave_application.html', {
-    #         'supervisor_name': supervisor.get_full_name() or supervisor.username,
-    #         'employee_name': request.user.get_full_name() or request.user.username,
-    #         'employee_email': request.user.email,
-    #         'leave_type': leave_type.name,
-    #         'from_date': from_date.strftime('%B %d, %Y'),
-    #         'to_date': to_date.strftime('%B %d, %Y'),
-    #         'duration': (to_date - from_date).days + 1,
-    #         'reason': leave_data['reason'],
-    #     })
-        
-    #     plain_message = strip_tags(html_message)
-        
-    #     try:
-    #         send_mail(
-    #             subject,
-    #             plain_message,
-    #             settings.DEFAULT_FROM_EMAIL,
-    #             [supervisor.email],
-    #             fail_silently=False,
-    #             html_message=html_message,
-    #         )
-    #     except Exception as e:
-    #         print(f"Failed to send email notification: {e}")
     
     return JsonResponse({'success': 'Leave applied successfully.', 'leave_id': leave_record.id}, status=201)
 
@@ -193,13 +155,13 @@ def updateStatus(request, leave_id):
         new_status = leave_data['status']
         comment = leave_data.get('comment', '')
         
-        print(f"DEBUG: Leave ID: {leave_id}")
-        print(f"DEBUG: Current status: {leave_obj.status}")
-        print(f"DEBUG: New status requested: {new_status}")
-        print(f"DEBUG: User: {request.user}")
-        print(f"DEBUG: User is supervisor: {request.user.groups.filter(name='supervisor').exists()}")
-        print(f"DEBUG: Leave supervisor: {leave_obj.supervisor}")
-        print(f"DEBUG: Comment: {comment}")
+        # print(f"DEBUG: Leave ID: {leave_id}")
+        # print(f"DEBUG: Current status: {leave_obj.status}")
+        # print(f"DEBUG: New status requested: {new_status}")
+        # print(f"DEBUG: User: {request.user}")
+        # print(f"DEBUG: User is supervisor: {request.user.groups.filter(name='supervisor').exists()}")
+        # print(f"DEBUG: Leave supervisor: {leave_obj.supervisor}")
+        # print(f"DEBUG: Comment: {comment}")
         
         # Check permissions
         if request.user.groups.filter(name='supervisor').exists():
@@ -224,37 +186,37 @@ def updateStatus(request, leave_id):
                 print(f"DEBUG: Rejecting leave - new status: REJECTED")
                 
                 # Send email to admin
-                admin_users = User.objects.filter(is_superuser=True)
-                admin_emails = [admin.email for admin in admin_users if admin.email]
-                print(f"DEBUG: Admin emails: {admin_emails}")
+                # admin_users = User.objects.filter(is_superuser=True)
+                # admin_emails = [admin.email for admin in admin_users if admin.email]
+                # print(f"DEBUG: Admin emails: {admin_emails}")
                 
-                if admin_emails and new_status == 'PENDING_ADMIN':
-                    subject = f'Leave Application Escalated - {leave_obj.user.get_full_name() or leave_obj.user.username}'
+                # if admin_emails and new_status == 'PENDING_ADMIN':
+                #     subject = f'Leave Application Escalated - {leave_obj.user.get_full_name() or leave_obj.user.username}'
                     
-                    # For now, let's skip the HTML email to avoid template errors
-                    plain_message = f"""
-                    A leave application has been escalated to admin review.
+                #     # For now, let's skip the HTML email to avoid template errors
+                #     plain_message = f"""
+                #     A leave application has been escalated to admin review.
                     
-                    Employee: {leave_obj.user.get_full_name() or leave_obj.user.username}
-                    Supervisor: {request.user.get_full_name() or request.user.username}
-                    Leave Type: {leave_obj.leave_type.name}
-                    From: {leave_obj.from_date.strftime('%B %d, %Y')}
-                    To: {leave_obj.to_date.strftime('%B %d, %Y')}
-                    Reason: {leave_obj.reason}
-                    Supervisor Comment: {comment}
-                    """
+                #     Employee: {leave_obj.user.get_full_name() or leave_obj.user.username}
+                #     Supervisor: {request.user.get_full_name() or request.user.username}
+                #     Leave Type: {leave_obj.leave_type.name}
+                #     From: {leave_obj.from_date.strftime('%B %d, %Y')}
+                #     To: {leave_obj.to_date.strftime('%B %d, %Y')}
+                #     Reason: {leave_obj.reason}
+                #     Supervisor Comment: {comment}
+                #     """
                     
-                    try:
-                        send_mail(
-                            subject,
-                            plain_message,
-                            settings.DEFAULT_FROM_EMAIL,
-                            admin_emails,
-                            fail_silently=False,
-                        )
-                        print(f"DEBUG: Email sent successfully")
-                    except Exception as e:
-                        print(f"DEBUG: Failed to send email notification: {e}")
+                #     try:
+                #         send_mail(
+                #             subject,
+                #             plain_message,
+                #             settings.DEFAULT_FROM_EMAIL,
+                #             admin_emails,
+                #             fail_silently=False,
+                #         )
+                #         print(f"DEBUG: Email sent successfully")
+                #     except Exception as e:
+                #         print(f"DEBUG: Failed to send email notification: {e}")
             else:
                 print(f"DEBUG: Invalid status for supervisor: {new_status}")
                 return JsonResponse({'error': 'Invalid status for supervisor'}, status=400)
@@ -278,31 +240,31 @@ def updateStatus(request, leave_id):
         print(f"DEBUG: Leave saved with status: {leave_obj.status}")
         
         # Send notification email to employee (simplified)
-        if leave_obj.user.email:
-            subject = f'Leave Application Status Update - {leave_obj.status.replace("_", " ").title()}'
+        # if leave_obj.user.email:
+        #     subject = f'Leave Application Status Update - {leave_obj.status.replace("_", " ").title()}'
             
-            plain_message = f"""
-            Your leave application status has been updated.
+        #     plain_message = f"""
+        #     Your leave application status has been updated.
             
-            Leave Type: {leave_obj.leave_type.name}
-            From: {leave_obj.from_date.strftime('%B %d, %Y')}
-            To: {leave_obj.to_date.strftime('%B %d, %Y')}
-            Status: {leave_obj.status.replace('_', ' ').title()}
-            Comment: {comment}
-            Updated by: {request.user.get_full_name() or request.user.username}
-            """
+        #     Leave Type: {leave_obj.leave_type.name}
+        #     From: {leave_obj.from_date.strftime('%B %d, %Y')}
+        #     To: {leave_obj.to_date.strftime('%B %d, %Y')}
+        #     Status: {leave_obj.status.replace('_', ' ').title()}
+        #     Comment: {comment}
+        #     Updated by: {request.user.get_full_name() or request.user.username}
+        #     """
             
-            try:
-                send_mail(
-                    subject,
-                    plain_message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [leave_obj.user.email],
-                    fail_silently=False,
-                )
-                print(f"DEBUG: Employee notification sent")
-            except Exception as e:
-                print(f"DEBUG: Failed to send employee notification: {e}")
+        #     try:
+        #         send_mail(
+        #             subject,
+        #             plain_message,
+        #             settings.DEFAULT_FROM_EMAIL,
+        #             [leave_obj.user.email],
+        #             fail_silently=False,
+        #         )
+        #         print(f"DEBUG: Employee notification sent")
+        #     except Exception as e:
+        #         print(f"DEBUG: Failed to send employee notification: {e}")
         
         return JsonResponse({"status": "success", "message": message}, safe=False)
         

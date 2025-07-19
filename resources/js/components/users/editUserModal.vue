@@ -13,7 +13,7 @@
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h3 class="modal-title" id="modal-form-title">New User Form</h3>
+            <h3 class="modal-title" id="modal-form-title">Edit User Form</h3>
             <button
               type="button"
               class="btn-close"
@@ -92,6 +92,21 @@
                     </option>
                   </select>
                 </div>
+                
+                <div class="col-md-6 mb-3">
+                  <label for="supervisor" class="form-label">Immediate Supervisor</label>
+                  <select
+                    v-model="data.supervisor_id"
+                    id="supervisor"
+                    name="supervisor"
+                    class="form-select"
+                  >
+                    <option disabled value="">Select supervisor</option>
+                    <option v-for="user in users.list" :key="user.id" :value="user.id">
+                      {{ user.first_name }} {{ user.last_name }}
+                    </option>
+                  </select>
+                </div>
 
                 <div class="col-md-12 mb-3">
                   <div class="form-check">
@@ -151,10 +166,17 @@ const errors = reactive({
   show: false,
 });
 
+const users = reactive({ list: [] });
+
+function getUsers() {
+  axios.get("supervisors/").then((response) => {
+    users.list = response.data;
+  });
+}
+
 function submit() {
   errors.list = {};
   errors.show = false;
-  console.log("fsdfksdjes", props.data);
   axios
     .put(`update/${props.data.id}`, props.data)
     .then(() => {
@@ -162,16 +184,14 @@ function submit() {
       emit("refresh-table");
     })
     .catch((error) => {
-      console.log(error);
       errors.list = error.response.data;
       errors.show = true;
     });
 }
 
 onMounted(() => {
-  console.log("edit user", props.data);
+  getUsers();
 });
-
 function cancel() {
   userStore.showEditUserForm = false;
 }

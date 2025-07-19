@@ -145,12 +145,22 @@ def update(request, user_id):
     
     User.objects.filter(id=user_id).update(**newData)
     user = User.objects.get(id=user_id)
-    group_id=int(data['groups'])
-    update_role(user,group_id)
+    group_value = data['groups']
+    if isinstance(group_value, list):
+        group_id = int(group_value[0]) if group_value else None
+    else:
+        group_id = int(group_value)
+    if group_id:
+        update_role(user, group_id)
 
-
-
-    return response(user)
+    #updating sepervisor
+    supervisor_id = data.get('supervisor_id')
+    if supervisor_id is not None:
+        profile, _ = UserProfile.objects.get_or_create(user=user)
+        profile.supervisor_id = supervisor_id
+        profile.save()
+        
+        return response(user)
 
 @login_required
 def destroy(request,user_id):
