@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
+from logs.utils import log_action
 # Create your views here.
 
 def auth_check(request):
@@ -31,6 +32,15 @@ def authenticate_user(request):
         print(username)
         user = authenticate(username=username,password=password)
         login(request, user)
+
+        #log when the user log 
+        log_action(
+        action="Login",
+        model="User",
+        action_by=request.user,
+        
+        )
+        
         if not request.user.is_superuser:
             return redirect('/attendance')
         else:
@@ -43,5 +53,12 @@ def authenticate_user(request):
 
 @login_required()
 def logout_user(request):
+    #log when the user logout
+    log_action(
+        action="Logout",
+        model="User",
+        action_by=request.user,
+        
+        )
     logout(request)
     return redirect('/login')

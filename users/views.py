@@ -20,6 +20,7 @@ from django.http import HttpResponse
 from serializers.users_serializers import UserSerializer
 from roles.views import update_role
 from userprofile.models import UserProfile
+from logs.utils import log_action
 # Create your views here.
 
 @login_required
@@ -75,6 +76,25 @@ def store(request):
     profile.supervisor_id = supervisor_id
     profile.save()
 
+    # Log user creation
+    log_action(
+        action="User Created",
+        model="User",
+        action_by=request.user,
+        action_to=user,
+        old={},
+        new={
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "is_superuser": user.is_superuser,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "group_id": group.id if group else None,
+            "supervisor_id": supervisor_id
+        }
+    )
     return response(user)
     # return response(request.POST.get('first_name'))
 
@@ -110,25 +130,40 @@ def all(request):
 def updateUserStatus(request, user_id):
     user = User.objects.get(id=user_id)
     status = False if user.is_active == True else True
+    old_status = user.is_active
     user.is_active = status
     user.save()
+
+    # Log user status change
+    log_action(
+        action="User Status Changed",
+        model="User",
+        action_by=request.user,
+        action_to=user,
+        old={"is_active": old_status},
+        new={"is_active": user.is_active}
+    )
+
     return response(status)
 
 @require_http_methods(['PUT'])
-@login_required
 def update(request, user_id):
     data = json.loads(request.body)
-    # errors = Validator.validate(request, {
-    #     "username": "required|unique:auth_user|max:10|min:6",
-    #     "email" : "required|email"
-    # })
-    
-    # if errors:
-    #     return JsonResponse(errors, status=422, safe=False)
-    
-    # if errors and is_ajax:
-    #     return JsonResponse(errors, status=422, safe=False)
-    
+
+    # Fetch old user data before update
+    old_user = User.objects.get(id=user_id)
+    old_data = {
+        "user_id": old_user.id,
+        "username": old_user.username,
+        "email": old_user.email,
+        "is_active": old_user.is_active,
+        "is_superuser": old_user.is_superuser,
+        "first_name": old_user.first_name,
+        "last_name": old_user.last_name,
+        "group_id": old_user.groups.first().id if old_user.groups.exists() else None,
+        "supervisor_id": getattr(getattr(old_user, 'userprofile', None), 'supervisor_id', None)
+    }
+
     newData = {
         "is_superuser": data['is_superuser'],
         "username": data['username'],
@@ -137,12 +172,7 @@ def update(request, user_id):
         "is_active": data['is_active'],
         "first_name": data['first_name'],
     }
-    
-    # if(data['password']):
-    #     newData.update("password", make_password(data['password']))
 
-    # data['password'] = make_password(data['password'])
-    
     User.objects.filter(id=user_id).update(**newData)
     user = User.objects.get(id=user_id)
     group_value = data['groups']
@@ -153,18 +183,56 @@ def update(request, user_id):
     if group_id:
         update_role(user, group_id)
 
-    #updating sepervisor
     supervisor_id = data.get('supervisor_id')
     if supervisor_id is not None:
         profile, _ = UserProfile.objects.get_or_create(user=user)
         profile.supervisor_id = supervisor_id
         profile.save()
-        
-        return response(user)
+
+    # Log user update with old and new data
+    log_action(
+        action="User Updated",
+        model="User",
+        action_by=request.user,
+        action_to=user,
+        old=old_data,
+        new={
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "is_superuser": user.is_superuser,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "group_id": group_id,
+            "supervisor_id": supervisor_id
+        }
+    )
+
+    return response(user)
 
 @login_required
 def destroy(request,user_id):
     user = User.objects.filter(id=user_id).delete()
+
+    # Log user deletion
+    log_action(
+        action="User Deleted",
+        model="User",
+        action_by=request.user,
+        action_to=user,
+        old={
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "is_superuser": user.is_superuser,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+        },
+        new={}
+    )
+
     return JsonResponse('success', safe=False)
 
 
@@ -173,6 +241,17 @@ def destroy(request,user_id):
 def updateUserPassword(request, user_id):
     data = json.loads(request.body)
     user = User.objects.filter(id=user_id).update(password=make_password(data['new_password']))
+
+    # Log password change
+    log_action(
+        action="User Password Changed",
+        model="User",
+        action_by=request.user,
+        action_to=user,
+        old={},
+        new={"user_id": user.id}
+    )
+
     return JsonResponse({"status": 'success'}, safe=False)
 
 
@@ -182,8 +261,6 @@ def all_users(request):
     users = User.objects.all().order_by('-id')
     data = [{'id': user.id, 'username': user.username} for user in users]
     return JsonResponse(data, safe=False)
-
-
 
     group=Group.objects.get(id=group_id)
     if user and group:

@@ -8,6 +8,7 @@ from project.models import Project, Status
 from project.serializers import ProjectSerializer
 from django.core.paginator import Paginator
 import json
+from logs.utils import log_action
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -57,6 +58,21 @@ class ProjectCreateView(LoginRequiredMixin, View):
         status = Status.objects.create(project=project, name=status)
         project.status = status
         project.save()
+
+        # Log project creation
+        log_action(
+            action="Project Created",
+            model="Project",
+            action_by=request.user,
+            action_to=None,
+            old={},
+            new={
+                "project_id": project.id,
+                "name": project.name,
+                "description": project.description,
+                "status": status.name
+            }
+        )
         return JsonResponse('success', safe=False)
 
 
@@ -66,8 +82,21 @@ class AddProjectStatusView(LoginRequiredMixin, View):
         status = json.loads(request.body)
         if not status.get('name'):
             return JsonResponse({'error': 'Status name is required.'}, status=400)
-        status['project'] = Project.objects.get(id=id)
-        Status.objects.create(**status)
+        project_obj = Project.objects.get(id=id)
+        status_obj = Status.objects.create(project=project_obj, name=status['name'])
+        # Log status addition
+        log_action(
+            action="Project Status Added",
+            model="Project",
+            action_by=request.user,
+            action_to=None,
+            old={},
+            new={
+                "project_id": project_obj.id,
+                "status_id": status_obj.id,
+                "status_name": status_obj.name
+            }
+        )
         return JsonResponse('success', safe=False)
 
 
@@ -83,7 +112,27 @@ class UpdateProjectView(LoginRequiredMixin, View):
             'description': project.get('description'),
             'status': Status.objects.get(id=status),
         }
+        old_project = Project.objects.get(id=id)
         Project.objects.filter(id=id).update(**data)
+        # Log project update
+        log_action(
+            action="Project Updated",
+            model="Project",
+            action_by=request.user,
+            action_to=None,
+            old={
+                "project_id": old_project.id,
+                "name": old_project.name,
+                "description": old_project.description,
+                "status": old_project.status.name if old_project.status else None
+            },
+            new={
+                "project_id": id,
+                "name": data['name'],
+                "description": data['description'],
+                "status": data['status'].name
+            }
+        )
         return JsonResponse('success', safe=False)
 
 
@@ -100,6 +149,19 @@ class DeleteProjectView(LoginRequiredMixin, View):
 
     def delete(self, request, id):
         project = Project.objects.get(id=id)
+        log_action(
+            action="Project Deleted",
+            model="Project",
+            action_by=request.user,
+            action_to=None,
+            old={
+                "project_id": project.id,
+                "name": project.name,
+                "description": project.description,
+                "status": project.status.name if project.status else None
+            },
+            new={}
+        )
         project.delete()
         return JsonResponse('success', safe=False)
 

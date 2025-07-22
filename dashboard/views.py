@@ -59,3 +59,5 @@ def points(request):
         "ratings": ratings
     }
     return JsonResponse({"data":context}, safe=False)
+
+

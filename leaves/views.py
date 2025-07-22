@@ -20,6 +20,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from userprofile.models import UserProfile
+from logs.utils import log_action
 
 
 def index(request):
@@ -85,20 +86,23 @@ def store(request):
 
     # Get selected supervisor
     supervisor = None
-    if leave_data.get('supervisor_id'):
+    if leave_data:
         try:
             user_profile = UserProfile.objects.get(user=request.user)
             supervisor = user_profile.supervisor
         except UserProfile.DoesNotExist:
             supervisor = None
-    else:
+    # else:
         # Fallback to first supervisor if none selected
-        try:
-            supervisor_group = Group.objects.get(name='supervisor')
-            supervisor = User.objects.filter(groups=supervisor_group).first()
-        except Group.DoesNotExist:
-            pass
-
+        # try:
+        #     supervisor_group = Group.objects.get(name='supervisor')
+        #     supervisor = User.objects.filter(groups=supervisor_group).first()
+        # except Group.DoesNotExist:
+        #     pass
+        
+    status = 'PENDING_SUPERVISOR'
+    if request.user.groups.filter(name='supervisor').exists():
+        status = 'PENDING_ADMIN'
     leave_record = Leaves.objects.create(
         user=request.user,
         leave_type=leave_type,
@@ -106,7 +110,18 @@ def store(request):
         to_date=to_date,
         reason=leave_data['reason'],
         supervisor=supervisor,
-        status='PENDING_SUPERVISOR'
+        status=status
+    )
+
+    log_action(
+        action="Leave Created",
+        model="Leave",
+        action_by=request.user,
+        old={},
+        new={"leave_type": {
+                "id": leave_type.id,
+                "name": leave_type.name,}
+        }
     )
 
     
@@ -123,21 +138,54 @@ def all(request):
             if request.user.is_superuser:
                 leaves = Leaves.objects.select_related('leave_type', 'user').filter(created_at__date__range=[range[0],range[1]]).order_by('-id')
             elif request.user.groups.filter(name='supervisor').exists():
-                leaves = Leaves.objects.select_related('leave_type', 'user').filter(supervisor=request.user, created_at__date__range=[range[0],range[1]]).order_by('-id')
+                if body['only_mine']:
+                    # Show supervisor's own leaves
+                    leaves = Leaves.objects.select_related('leave_type', 'user').filter(
+                        user=request.user,
+                        created_at__date__range=[range[0], range[1]]
+                    ).order_by('-id')
+                else:
+                    # Show supervised leaves only
+                    leaves = Leaves.objects.select_related('leave_type', 'user').filter(
+                        supervisor=request.user,
+                        created_at__date__range=[range[0], range[1]]
+                    ).order_by('-id')
             else:
                 leaves = Leaves.objects.select_related('leave_type', 'user').filter(user_id=request.user.id, created_at__date__range=[range[0],range[1]]).order_by('-id')
         else:
             if request.user.is_superuser:
                 leaves = Leaves.objects.select_related('leave_type', 'user').filter(created_at__date=range[0]).order_by('-id')
             elif request.user.groups.filter(name='supervisor').exists():
-                leaves = Leaves.objects.select_related('leave_type', 'user').filter(supervisor=request.user, created_at__date=range[0]).order_by('-id')
+                if body['only_mine']:
+                    # Show supervisor's own leaves
+                    leaves = Leaves.objects.select_related('leave_type', 'user').filter(
+                        user=request.user
+                    ).order_by('-id')
+                    print("Leave if Superviser")
+                else:
+                    # Show supervised leaves only
+                    leaves = Leaves.objects.select_related('leave_type', 'user').filter(
+                        supervisor=request.user
+                    ).order_by('-id')
+                    print("Supervised Levaves")
             else:
                 leaves = Leaves.objects.select_related('leave_type', 'user').filter(user_id=request.user.id,created_at__date=range[0]).order_by('-id')
     else:
         if request.user.is_superuser:
             leaves = Leaves.objects.select_related('leave_type', 'user').order_by('-id')
         elif request.user.groups.filter(name='supervisor').exists():
-            leaves = Leaves.objects.select_related('leave_type', 'user').filter(supervisor=request.user).order_by('-id')
+                if body['only_mine']:
+                    # Show supervisor's own leaves
+                    leaves = Leaves.objects.select_related('leave_type', 'user').filter(
+                        user=request.user
+                    ).order_by('-id')
+                    print("Leave if Superviser")
+                else:
+                    # Show supervised leaves only
+                    leaves = Leaves.objects.select_related('leave_type', 'user').filter(
+                        supervisor=request.user
+                    ).order_by('-id')
+                    print("Supervised Levaves")
         else:
             leaves = Leaves.objects.select_related('leave_type', 'user').filter(user=request.user).order_by('-id')
 
@@ -162,7 +210,28 @@ def updateStatus(request, leave_id):
         # print(f"DEBUG: User is supervisor: {request.user.groups.filter(name='supervisor').exists()}")
         # print(f"DEBUG: Leave supervisor: {leave_obj.supervisor}")
         # print(f"DEBUG: Comment: {comment}")
-        
+        # Allow the leave owner to cancel their own leave if it's pending
+        if leave_obj.user == request.user and new_status == 'CANCELLED':
+            if leave_obj.status in ['PENDING_SUPERVISOR', 'PENDING_ADMIN', 'PENDING']:
+                leave_obj.status = 'CANCELLED'
+                leave_obj.save()
+                log_action(
+                    action="Leave Cancelled",
+                    model="Leave",
+                    action_by=request.user,
+                    action_to=leave_obj.user,
+                    old={"status": getattr(leave_obj, '_old_status', None)},
+                    new={
+                        "leave_id": leave_obj.id,
+                        "status": leave_obj.status,
+                        "comment": comment,
+                        "updated_by": request.user.id
+                    }
+                )
+                return JsonResponse({"status": "success", "message": "Leave cancelled successfully."}, safe=False)
+            else:
+                return JsonResponse({'error': 'Only pending leaves can be cancelled.'}, status=400)
+            
         # Check permissions
         if request.user.groups.filter(name='supervisor').exists():
             # Supervisor can only update leaves they supervise and are pending supervisor approval
@@ -185,46 +254,12 @@ def updateStatus(request, leave_id):
                 message = 'Leave rejected by supervisor.'
                 print(f"DEBUG: Rejecting leave - new status: REJECTED")
                 
-                # Send email to admin
-                # admin_users = User.objects.filter(is_superuser=True)
-                # admin_emails = [admin.email for admin in admin_users if admin.email]
-                # print(f"DEBUG: Admin emails: {admin_emails}")
-                
-                # if admin_emails and new_status == 'PENDING_ADMIN':
-                #     subject = f'Leave Application Escalated - {leave_obj.user.get_full_name() or leave_obj.user.username}'
-                    
-                #     # For now, let's skip the HTML email to avoid template errors
-                #     plain_message = f"""
-                #     A leave application has been escalated to admin review.
-                    
-                #     Employee: {leave_obj.user.get_full_name() or leave_obj.user.username}
-                #     Supervisor: {request.user.get_full_name() or request.user.username}
-                #     Leave Type: {leave_obj.leave_type.name}
-                #     From: {leave_obj.from_date.strftime('%B %d, %Y')}
-                #     To: {leave_obj.to_date.strftime('%B %d, %Y')}
-                #     Reason: {leave_obj.reason}
-                #     Supervisor Comment: {comment}
-                #     """
-                    
-                #     try:
-                #         send_mail(
-                #             subject,
-                #             plain_message,
-                #             settings.DEFAULT_FROM_EMAIL,
-                #             admin_emails,
-                #             fail_silently=False,
-                #         )
-                #         print(f"DEBUG: Email sent successfully")
-                #     except Exception as e:
-                #         print(f"DEBUG: Failed to send email notification: {e}")
+
             else:
                 print(f"DEBUG: Invalid status for supervisor: {new_status}")
                 return JsonResponse({'error': 'Invalid status for supervisor'}, status=400)
                 
         elif request.user.is_superuser:
-            # Admin can update leaves that are pending admin approval
-            # if leave_obj.status != 'PENDING_ADMIN':
-            #     return JsonResponse({'error': 'This leave is not pending admin approval'}, status=403)
             
             if new_status in ['APPROVED', 'REJECTED']:
                 leave_obj.status = new_status
@@ -238,7 +273,23 @@ def updateStatus(request, leave_id):
         # Save the changes
         leave_obj.save()
         print(f"DEBUG: Leave saved with status: {leave_obj.status}")
-        
+
+        #log on every update
+        log_action(
+            action="Leave Status Updated",
+            model="Leave",
+            action_by=request.user,
+            action_to=leave_obj.user,
+            old={"status": getattr(leave_obj, '_old_status', None)},
+            new={
+                "leave_id": leave_obj.id,
+                "status": leave_obj.status,
+                "comment": comment,
+                "updated_by": request.user.id
+            }
+        )
+
+    
         # Send notification email to employee (simplified)
         # if leave_obj.user.email:
         #     subject = f'Leave Application Status Update - {leave_obj.status.replace("_", " ").title()}'
@@ -308,6 +359,17 @@ def update(request, leave_id):
         newData['supervisor'] = supervisor
     
     Leaves.objects.filter(pk=leave_id).update(**newData)
+
+    #log on every update
+    log_action(
+        action="Leave Updated",
+        model="Leave",
+        action_by=request.user,
+        action_to=Leaves.objects.get(pk=leave_id).user,
+        old={},
+        new={"leave_id": leave_id, **newData}
+    )
+
     return JsonResponse({"status": "success", "message": "Leave updated successfully"}, safe=False)
 
 # @login_required

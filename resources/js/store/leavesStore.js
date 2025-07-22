@@ -17,7 +17,8 @@ export const leavesStore = reactive({
     },
     filter: {
         range: '',
-        status: 'all'
+        status: 'all',
+        only_mine: false
     },
     leave: {
         list:{},

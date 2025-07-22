@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import Group, Permission, User
 from django.contrib import messages
 from django.http import JsonResponse
+from logs.utils import log_action
 # Create your views here.
 
 @login_required
@@ -51,6 +52,19 @@ def add_role(request):
 
         group.permissions.set(Permission.objects.filter(id__in=selected_permissions))
 
+            # Log role creation
+        log_action(
+            action="Role Created",
+            model="Group",
+            action_by=request.user,
+            action_to=None,
+            old={},
+            new={
+                "group_id": group.id,
+                "group_name": group.name,
+                "permissions": list(group.permissions.values_list('codename', flat=True))
+            }
+        )
         messages.success(request, 'Role created successfully.')
         return redirect('rolesIndex')
 
@@ -72,11 +86,30 @@ def edit_role(request, group_id):
         group_name = request.POST.get('name')
         selected_permissions = request.POST.getlist('permissions')
 
+        old_permissions = list(group.permissions.values_list('codename', flat=True))
+        old_name = group.name
+
         group.name = group_name
         group.save()
-
         group.permissions.set(Permission.objects.filter(id__in=selected_permissions))
 
+        # Log role update
+        log_action(
+            action="Role Updated",
+            model="Group",
+            action_by=request.user,
+            action_to=None,
+            old={
+                "group_id": group.id,
+                "group_name": old_name,
+                "permissions": old_permissions
+            },
+            new={
+                "group_id": group.id,
+                "group_name": group.name,
+                "permissions": list(group.permissions.values_list('codename', flat=True))
+            }
+        )
 
         messages.success(request, 'Role updated successfully.')
         return redirect('rolesIndex')
@@ -92,6 +125,19 @@ def edit_role(request, group_id):
 @login_required
 def delete_role(request, group_id):
     group = get_object_or_404(Group, id=group_id)
+    # Log role deletion
+    log_action(
+        action="Role Deleted",
+        model="Group",
+        action_by=request.user,
+        action_to=None,
+        old={
+            "group_id": group.id,
+            "group_name": group.name,
+            "permissions": list(group.permissions.values_list('codename', flat=True))
+        },
+        new={}
+    )
     group.delete()
     messages.success(request, 'Role deleted successfully.')
     return redirect('rolesIndex')

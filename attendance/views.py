@@ -10,6 +10,8 @@ from worklog.views import store_worklog
 from helpers.general import time_difference
 from datetime import time
 from settings.views import get_punch_in_time,get_punch_out_time
+from logs.utils import log_action
+
 def dateMaker(range):
     fromDate = None
     toDate = None
@@ -151,7 +153,6 @@ def attendance_history(request, user_id):
 
 
 
-
 @login_required
 def punch(request):
     attendance = None
@@ -171,6 +172,19 @@ def punch(request):
         check=store_worklog(request.user,hours_worked)
         if check:
             attendance.update(punch_out_date = today, punch_out_time = now ,hours_worked=hours_worked ) 
+            # Log punch out
+            log_action(
+                action="Punch Out",
+                model="Attendance",
+                action_by=request.user,
+                action_to=request.user,
+                old={},
+                new={
+                    "punch_out_date": str(today),
+                    "punch_out_time": now,
+                    "hours_worked": str(hours_worked)
+                }
+            )
             return HttpResponseRedirect('/attendance/')
     else:
         newData = {
@@ -181,6 +195,20 @@ def punch(request):
             "ip_address": ip_address,
         }
         attendance = Attendance.objects.create(**newData)
+        # Log punch in
+        log_action(
+            action="Punch In",
+            model="Attendance",
+            action_by=request.user,
+            action_to=request.user,
+            old={},
+            new={
+                "punch_in_date": str(today),
+                "punch_in_time": now,
+                "ip_address": ip_address,
+                "notes": notes
+            }
+        )
     return HttpResponseRedirect('/attendance/')
 
 

@@ -200,11 +200,19 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { leavesStore } from '../../store/leavesStore';
 import { put } from '../../kit';
 import Swal from 'sweetalert2';
 import pagination from '../pagination.vue';
+
+watch(
+  () => [leavesStore.filter.range, leavesStore.filter.status],
+  () => {
+    leavesStore.current_page = 1; // Reset to first page on filter change
+    leavesStore.getMyLeaves();
+  }
+);
 
 function approveLeave(leave) {
     Swal.fire({
@@ -262,6 +270,7 @@ function rejectLeave(leave) {
         }
     });
 }
+
 
 function updatePageNumber(page){
   leavesStore.current_page = page;

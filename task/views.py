@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 import json
 from task.serializers import TaskSerializer
-
+from logs.utils import log_action
 
 # Create your views here.
 class IndexView(LoginRequiredMixin, View):
@@ -81,6 +81,24 @@ class TaskCreateView(LoginRequiredMixin, View):
         for f in attachments:
             instance.attachments.append(default_storage.save(f.name, f))
         instance.save()
+
+        # Log task creation
+        log_action(
+            action="Task Created",
+            model="Task",
+            action_by=request.user,
+            action_to=assign_to,
+            old={},
+            new={
+                "task_id": instance.id,
+                "title": instance.title,
+                "project": project.name,
+                "status": status.name,
+                "assigned_to": assign_to.username,
+                "start_time": str(instance.start_time),
+                "end_time": str(instance.end_time)
+            }
+        )
         return JsonResponse('success', safe=False)
 
 
@@ -88,6 +106,23 @@ class DeleteTaskView(LoginRequiredMixin, View):
 
     def delete(self, request, id):
         task = Task.objects.get(id=id)
+        # Log task deletion
+        log_action(
+            action="Task Deleted",
+            model="Task",
+            action_by=request.user,
+            action_to=task.assigned_to,
+            old={
+                "task_id": task.id,
+                "title": task.title,
+                "project": task.project.name,
+                "status": task.status.name,
+                "assigned_to": task.assigned_to.username,
+                "start_time": str(task.start_time),
+                "end_time": str(task.end_time)
+            },
+            new={}
+        )
         task.delete()
         return JsonResponse('success', safe=False)
 
@@ -124,6 +159,20 @@ class TaskUpdateView(LoginRequiredMixin, View):
             task_dict.pop('start_time')
         if re.match(pattern, end_time):
             task_dict.pop('end_time')
+
+        old_task = Task.objects.get(id=id)
+
+        #old data for log
+        old_data = {
+            "task_id": old_task.id,
+            "title": old_task.title,
+            "project": old_task.project.name,
+            "status": old_task.status.name,
+            "assigned_to": old_task.assigned_to.username,
+            "start_time": str(old_task.start_time),
+            "end_time": str(old_task.end_time)
+        }
+
         Task.objects.filter(id=id).update(**task_dict)
         if attachments:
             task = Task.objects.get(id=id)
@@ -131,4 +180,24 @@ class TaskUpdateView(LoginRequiredMixin, View):
             for f in attachments:
                 task.attachments.append(default_storage.save(f.name, f))
             task.save()
+        
+        # Log task update
+        updated_task = Task.objects.get(id=id)
+        log_action(
+            action="Task Updated",
+            model="Task",
+            action_by=request.user,
+            action_to=updated_task.assigned_to,
+            old=old_data,
+            new={
+                "task_id": updated_task.id,
+                "title": updated_task.title,
+                "project": updated_task.project.name,
+                "status": updated_task.status.name,
+                "assigned_to": updated_task.assigned_to.username,
+                "start_time": str(updated_task.start_time),
+                "end_time": str(updated_task.end_time)
+            }
+        )
+
         return JsonResponse('success', safe=False)

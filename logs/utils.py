@@ -1,10 +1,12 @@
 from .models import ActionLog
+from celery import shared_task
 
-def log_action(action, model, user=None, target_user=None, old=None, new=None):
+@shared_task
+def log_action(action, model, action_by=None, action_to=None, old=None, new=None):
     ActionLog.objects.create(
         action=action,
         model=model,
-        action_by=user,
-        action_to=target_user,
+        action_by=action_by,
+        action_to=action_to,
         data={"old_data": old or {}, "new_data": new or {}}
     )

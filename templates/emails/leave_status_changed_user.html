@@ -4,18 +4,61 @@
     <meta charset="utf-8">
     <title>Leave Application Status Update</title>
 </head>
-<body>
-    <p>Dear {{ employee_name }},</p>
-    <p>The status of your leave application has changed.</p>
-    <ul>
-        <li><strong>Leave Type:</strong> {{ leave_type }}</li>
-        <li><strong>From:</strong> {{ from_date }}</li>
-        <li><strong>To:</strong> {{ to_date }}</li>
-        <li><strong>Duration:</strong> {{ duration }} day{{ duration|pluralize }}</li>
-        <li><strong>Reason:</strong> {{ reason }}</li>
-        <li><strong>Status:</strong> {{ status }}</li>
-    </ul>
-    <p>Please check your leave portal for more details.</p>
-    <p>Thank you.</p>
+<body style="background: #f4f6fb; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background: #f4f6fb; min-height: 100vh;">
+        <tr>
+            <td align="center">
+                <table width="480" cellpadding="0" cellspacing="0" style="background: #fff; border-radius: 16px; box-shadow: 0 6px 32px rgba(44,62,80,0.10); margin: 40px 0;">
+                    <tr>
+                        <td style="padding: 40px 32px 32px 32px;">
+                            <div style="text-align: center; margin-bottom: 24px;">
+                                <img src="https://img.icons8.com/color/96/approval--v1.png" alt="Status Icon" width="64" height="64" style="margin-bottom: 12px;">
+                                <h2 style="color: #2563eb; font-size: 2rem; margin: 0 0 8px 0; font-weight: 700;">Leave Status Updated</h2>
+                                <p style="color: #64748b; font-size: 1rem; margin: 0;">Your leave application status has changed</p>
+                            </div>
+                            <p style="font-size: 1.1rem; margin-bottom: 4px;">Dear <span style="font-weight: 600; color: #2563eb;">{{ employee_name }}</span>,</p>
+                            <p style="color: #475569; margin-bottom: 20px;">The status of your leave application has been updated. Please find the details below:</p>
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 24px;">
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 500; padding: 8px 0;">Leave Type:</td>
+                                    <td style="text-align: right; color: #0f172a;">{{ leave_type }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 500; padding: 8px 0;">From:</td>
+                                    <td style="text-align: right; color: #0f172a;">{{ from_date }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 500; padding: 8px 0;">To:</td>
+                                    <td style="text-align: right; color: #0f172a;">{{ to_date }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 500; padding: 8px 0;">Duration:</td>
+                                    <td style="text-align: right; color: #0f172a;">{{ duration }} day{{ duration|pluralize }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 500; padding: 8px 0;">Reason:</td>
+                                    <td style="text-align: right; color: #0f172a;">{{ reason }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #64748b; font-weight: 500; padding: 8px 0;">Status:</td>
+                                    <td style="text-align: right; font-weight: 700; color: #2563eb;">{{ status }}</td>
+                                </tr>
+                            </table>
+                            <div style="color: #64748b; margin-bottom: 24px;">
+                                Please check your leave portal for more details.
+                            </div>
+                            <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; text-align: center; color: #94a3b8; font-size: 0.95rem;">
+                                Thank you,<br>
+                                <span style="font-weight: 600; color: #2563eb;">The HR Team</span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div style="color: #b0b8c1; font-size: 0.85rem; margin-top: 16px; text-align: center;">
+                    &copy; {{ year|default:"2025" }} Your Company. All rights reserved.
+                </div>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

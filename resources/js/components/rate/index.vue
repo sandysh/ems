@@ -27,6 +27,7 @@
                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Rank</th>
                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">User</th>
                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Metric</th>
+                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Department</th>
                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Average Score</th>
                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">Total Votes</th>
                                 </tr>
@@ -66,6 +67,18 @@
                                     <td class="px-3 py-2">
                                         <span class="badge badge-sm bg-gradient-info">{{ entry.metric__name }}</span>
                                     </td>
+
+
+                                    <td class="px-3 py-2">
+                                        <span class="font-semibold text-sm text-gray-800">
+                                            {{ entry.department }}
+                                        </span>
+                                    </td>
+
+
+
+
+
                                     <td class="px-3 py-2">
                                         <div class="d-flex align-items-center">
                                             <span class="text-sm font-weight-bold">{{ formatScore(entry.avg_score) }}</span>
@@ -299,6 +312,14 @@ async function rate(user, metric) {
                 });
                 // Refresh leaderboard after rating
                 await getLeaderboard();
+            }else if (response.data === 'fail') {
+                await Swal.fire({
+                    title: "Already Rated!",
+                    text: `You already rated ${user.first_name} ${user.last_name} on ${metric.name} for this month`,
+                    icon: "error",
+                    timer: 3000,
+                    showConfirmButton: false
+                });
             } else {
                 throw new Error('Failed to save rating');
             }

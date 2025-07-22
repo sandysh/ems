@@ -51,12 +51,13 @@ class Leaves(models.Model):
             print(f"DEBUG: Calculated leave_days={self.leave_days}")
 
             if not self.pk:  # pk is None if object is not saved yet
+                
                 if self.leave_days > 2:
                     self.status = "PENDING_ADMIN"
                     print(f"DEBUG: Status set to PENDING_ADMIN (days > 2)")
-                else:
-                    self.status = "PENDING_SUPERVISOR"
-                    print(f"DEBUG: Status set to PENDING_SUPERVISOR (days <= 2)")
+                # else:
+                #     self.status = "PENDING_SUPERVISOR"
+                #     print(f"DEBUG: Status set to PENDING_SUPERVISOR (days <= 2)")
             else:
                 print(f"DEBUG: Not setting status - object already exists (pk={self.pk})")
         else:

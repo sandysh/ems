@@ -70,7 +70,28 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6>Leave Applications for Review</h6>
+                        <div class="row align-items-center">
+                            <div class="col">   
+                                <h6 class="mb-0">Leave Applications for Review</h6>
+                            </div>
+                            <div class="col-auto d-flex gap-2">
+                                <button
+                                    class="btn btn-primary"
+                                    :class="{'active': leavesStore.filter.only_mine}"
+                                    @click="setOnlyMine"
+                                >
+                                    My Leaves
+                                </button>
+                                <button
+                                    class="btn btn-secondary"
+                                    :class="{'active': !leavesStore.filter.only_mine}"
+                                    @click="setSupervised"
+                                >
+                                    Supervised Leaves
+                                </button>
+                                <button @click="showForm" class="btn btn-success">Apply Leave</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -138,14 +159,22 @@
                 </div>
             </div>
         </div>
+        <Transition>
+            <add-edit-leaves v-if="leavesStore.showLeavesForm"></add-edit-leaves>
+        </Transition>
     </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { leavesStore } from '../../store/leavesStore';
 import { put } from '../../kit';
 import Swal from 'sweetalert2';
+import AddEditLeaves  from './AddEditLeaves.vue'
+
+watch(leavesStore.filter, async (newFilter, oldFilter) => {
+ await  leavesStore.getMyLeaves()
+})
 
 function approveLeave(leave) {
     Swal.fire({
@@ -202,6 +231,23 @@ function rejectLeave(leave) {
             }
         }
     });
+}
+
+function setOnlyMine() {
+    leavesStore.filter.only_mine = true;
+    leavesStore.current_page = 1;
+    // leavesStore.getMyLeaves();
+}
+
+function setSupervised() {
+    leavesStore.filter.only_mine = false;
+    leavesStore.current_page = 1;
+    // leavesStore.getMyLeaves();
+}
+
+
+function showForm(){
+    leavesStore.showLeavesForm = true
 }
 
 onMounted(() => {

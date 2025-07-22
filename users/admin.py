@@ -1,10 +1,18 @@
 from django.apps import apps
 from django.contrib import admin
+from logs.models import ActionLog 
 
 admin.site.site_title = "ems"
-admin.site.site_header = "ems"
+admin.site.site_header =  "Employee Management System"
 admin.site.index_title = "ems"
 
+# Register ActionLog with custom admin before auto-registering everything else
+@admin.register(ActionLog)
+class ActionLogAdmin(admin.ModelAdmin):
+    list_display = ('action', 'model', 'action_by', 'action_to','data', 'timestamp')
+    list_filter = ('model', 'action', 'action_by')
+    search_fields = ('action', 'model', 'action_by__username', 'action_to__username')
+    ordering = ('-timestamp',)
 
 def register_all_app_models():
     """
